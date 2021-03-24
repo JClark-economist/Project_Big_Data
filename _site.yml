@@ -1,0 +1,24 @@
+name: "Classification"
+title: "BIG DATA"
+#favicon: images/favicon.ico
+description: |
+  Une introduction aux modèles de classification
+output_dir: "docs"
+include: ["slides/"]
+#creative_commons: CC BY-SA
+#repository_url: https://github.com/JClark-economist
+navbar:
+  logo:
+    image: slides_homepage/images/mecen.png
+    href: http://mecen-univ-tours.fr/
+  right:
+    - text: home
+      href: index.html
+    - text: cours
+      href: models.html
+    - icon: fab fa-github
+      href: https://github.com/JClark-economist
+output: 
+  distill::distill_article:
+    toc: true
+    css: styles.css

@@ -1,0 +1,7 @@
+---
+title: "Techniques mathématiques"
+description: |
+  Un rappel sur les techniques mathématiques nécessaires à la compréhension
+site: distill::distill_website
+---
+

@@ -1,0 +1,12 @@
+---
+title: "L'analyse discriminante quadratique"
+description: |
+  Une introduction aux méthodes statistiques nécessaires à la classification
+site: distill::distill_website
+---
+
+## Comprendre
+
+## Appliquer
+
+## Aller plus loin

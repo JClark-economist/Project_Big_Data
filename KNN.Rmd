@@ -1,0 +1,254 @@
+---
+title: "Les K Plus Proches Voisins ou KNN"
+description: |
+  Une introduction aux méthodes statistiques nécessaires à la classification
+site: distill::distill_website
+---
+
+```{r library, echo = F}
+library(MASS)
+library(ggplot2)
+library(caret)
+library(ggpubr)
+library(ggforce)
+```
+
+## Comprendre
+
+Les kNN est un algorithme de segmentation (qui peut aussi être utilisée pour faire de la prévision) dans laquelle le classement de chaque individu s'opère en regardant, parmi les individus déja classés, la classe des k individus qui sont ses plus proches voisins en terme de distance. Celle utilisée dans les kNN est généralement la notion de distance euclidienne. Cependant, d'autres distances peuvent être apppliquées tel que la distance de Manhattan ou la distance de Minkowski par exemple. Vous trouverez les explications de ces notions de distance [ici](Notions.html).
+
+La figure suivante présente un exemple illustratif de l'approche KNN. Dans le panneau de gauche, nous avons tracé un petit ensemble de données d'apprentissage composé de six observations bleues foncés et de six observations bleues claires. Notre objectif est de faire une prédiction pour le point marqué par la croix noire. Supposons que nous choisissions $K = 3$. KNN identifiera d'abord les trois observations qui sont les plus proches de la croix (On utilise la distance euclidienne ici). Ce voisinage est représenté par le cercle de couleur rose. Il est composé de deux points bleus foncés et d'un point bleu clair, ce qui donne des probabilités estimées de $\frac{2}{3}$ pour la classe bleue foncé et de $\frac{1}{3}$ pour la classe bleue clair. KNN prédit donc que la croix noire appartient à la classe bleue foncé. Dans le panneau de droite de la figure, nous avons appliqué l'approche KNN avec $K = 3$ à toutes les valeurs possibles de $X$ et $Y$, et nous avons dessiné la limite de décision KNN correspondante.
+
+```{r data explication, echo=FALSE}
+data1 <- data.frame(X= c(1,2,3,4,7,8), Y=c(4,6,1,5,8,7), Col = "Gr A")
+data2 <- data.frame(X= c(4,5,5,6,6,7), Y=c(7,9,3,2,8,4 ), Col = "Gr B")
+data <- rbind(data1, data2)
+```
+
+```{r explication knn1, echo=FALSE}
+gg1 <- ggplot(data) +
+  geom_point(aes(x=3.1, y=5.8), colour = "black", size = 44, alpha = 0.8, fill = "lavenderblush", pch = 21) + 
+  geom_point(aes(x=X, y=Y, color = Col)) +
+  geom_point(x=3.1, y=5.8, color = "black", pch = 3) +
+  scale_color_manual("",values = c("#344a58","#238694","#344a58","#238694"),
+                     labels = c("Groupe 1", "Groupe 2","Groupe 1", "Groupe 2"))+
+  theme_bw() + 
+  theme(
+    plot.title = element_text(face = "bold", size = 12),
+    legend.position = "none",
+    axis.ticks = element_blank(),
+    axis.text  = element_blank(),
+    panel.grid.major = element_line(colour = "grey70", size = 0.2),
+    panel.grid.minor = element_blank()
+  ) + xlab("X") + ylab("Y")
+```
+
+```{r explication knn2, echo = F}
+
+knnModel <- train(Col~.,
+                  data = data,
+                  method = 'knn',
+                  tuneGrid = expand.grid(k = 3),
+                  preProcess = c("center", "scale"))
+
+pl = seq(min(data$X), max(data$X), by=0.1)
+pw = seq(min(data$Y), max(data$Y), by=0.1)
+
+# generates the boundaries for your graph
+lgrid <- expand.grid(X=pl, 
+                     Y=pw)
+
+knnPredGrid <- predict(knnModel, newdata=lgrid)
+knnPredGrid = as.numeric(knnPredGrid)
+
+gg2 <- ggplot(data=lgrid) + stat_contour(aes(x=X, y=Y, z=knnPredGrid),
+                            bins=1, color =  "black")  +
+  geom_point(aes(x=X, y=Y, colour=as.factor(knnPredGrid)), size = 0.001, shape = 20)+
+  geom_point(data=data, aes(x=X, y=Y, colour=as.factor(Col)),
+             size=1, alpha=5, shape=9) +
+  scale_color_manual("",values = c("#344a58","#238694","#344a58","#238694"),
+                     labels = c("Groupe 1", "Groupe 2","Groupe 1", "Groupe 2"))+
+  theme_bw() + 
+  theme(
+    plot.title = element_text(face = "bold", size = 12),
+    legend.position = "none",
+    axis.ticks = element_blank(),
+    axis.text  = element_blank(),
+    panel.grid.major = element_line(colour = "grey70", size = 0.2),
+    panel.grid.minor = element_blank()
+  )
+```
+
+```{r ggarange 1, echo=FALSE}
+ggarrange(gg1, gg2)
+```
+
+On voit bien a travers cet exemple les problèmes qui peuvent être liés à la construction d'une segmentation par les k plus proches voisins. Combien de voisins doit on choisir ? Comment mesure-t-on la distance ?
+
+Pour commencer, outre le choix de la mesure de distance (euclidienne, Manhattan ou autre), certaines variables, qui ont des valeurs élevées, peuvent recouvrir l'influence d'autres variables qui sont mesurés sur des échelles plus faible. Pour éviter cela, il est important de normaliser les valeurs des variables.
+
+Ensuite comment doit-on choisir $k$ ? Il n'y a pas de choix optimal évident concernant ce paramètre. Avec une faible valeur de $k$ (par exemple $k=1$), l'algorithme va retourner comme variable cible la plus proche observation. Ce procédé va entrainer du sur-apprentissage car il va tenter de mémoriser l'ensemble de l'échantillon au détriment de la généralisation. D'un autre coté, choisir une valeur de $k$ qui serait trop grande aura tendance à atténuer tout comportement idiosyncrasique appris à partir de l'ensemble d'apprentissage. Ainsi, l'algorithme aurra tendance à faire du sous-apprentisage dans le cas d'un $k$ trop élevé. Il est donc importent de prendre en compte ces considérations lorsque l'on choisit $k$. Il est possible d'essayer différents $k$ et choisir la valeur qui minimise l'erreur de prédiction.
+
+Ces trois graphiques montrent les différents cas cités précédemment. On peut voir qu'un $k$ trop faible prend en considération toute les spécificités de l'échantillon d'entrainement contrairement au cas $k=10$ qui garde les spécificités de l'échantillon mais reste suffisamment général pour donner de bonne prédiction En revanche, un $k$ trop grand forme une ligne droite et ne prend pas en compte les spécificités de l'échantillon.
+
+```{r df pour k, echo = F}
+set.seed(128)
+df1 <- data.frame(X= rnorm(150,0,1), Y= rnorm(150, 5,1), Color = factor("Groupe 1"))
+df2 <- data.frame(X= rnorm(150, 3,0.75), Y= rnorm(150, 5,1), Color = factor("Groupe 2"))
+df3 <- data.frame(X= rnorm(50, 3,0.7), Y= rnorm(50, 3,0.35), Color = factor("Groupe 1"))
+df4 <- data.frame(X= rnorm(50, 0,0.7), Y= rnorm(50, 8,0.35), Color = factor("Groupe 2"))
+df5 <- data.frame(X= rnorm(5, 2.5,0.1), Y= rnorm(5, 7,0.1), Color = factor("Groupe 1"))
+df <- rbind(df1, df2, df3, df4, df5)
+```
+
+```{r k1, echo = F}
+set.seed(128)
+indxTrain <- createDataPartition(y = df[, names(df) == "Color"], p = 0.7, list = F)
+
+train <- df[indxTrain,]
+test <- df[-indxTrain,]
+
+knnModel <- train(Color ~.,
+                  data = train,
+                  method = 'knn',
+                  tuneGrid = expand.grid(k = 1),
+                  preProcess = c("center", "scale"))
+
+pl = seq(-3, 4.5, by=0.1)
+pw = seq(2, 9, by=0.1)
+
+# generates the boundaries for your graph
+lgrid <- expand.grid(X=pl, 
+                     Y=pw)
+
+knnPredGrid <- predict(knnModel, newdata=lgrid)
+knnPredGrid = as.numeric(knnPredGrid)
+
+# get the points from the test data...
+testPred <- predict(knnModel, newdata=test)
+testPred <- as.numeric(testPred)
+# this gets the points for the testPred...
+test$Pred <- testPred
+
+probs <- matrix(knnPredGrid, length(pl), length(pw))
+
+gg1 <- ggplot(data=lgrid) + stat_contour(aes(x=X, y=Y, z=knnPredGrid),
+                            bins=1, color =  "black")  +
+  geom_point(aes(x=X, y=Y, colour=as.factor(knnPredGrid)), size = 0.001, shape = 20) +
+  geom_point(data=test, aes(x=X, y=Y, colour=as.factor(Color)),
+             size=1, alpha=5, shape=9)+
+  theme_minimal()+ scale_color_manual("",values = c("#344a58","#238694","#344a58","#238694"),labels = c("Groupe 1", "Groupe 2","Groupe 1", "Groupe 2")) + 
+  ggtitle("K=1")+
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text  = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
+```{r k10, echo = F}
+set.seed(128)
+indxTrain2 <- createDataPartition(y = df[, names(df) == "Color"], p = 0.7, list = F)
+
+train2 <- df[indxTrain2,]
+test2 <- df[-indxTrain2,]
+
+knnModel2 <- train(Color ~.,
+                  data = train2,
+                  method = 'knn',
+                  tuneGrid = expand.grid(k = 10),
+                  preProcess = c("center", "scale"))
+
+pl2 = seq(-3, 4.5, by=0.1)
+pw2 = seq(2, 9, by=0.1)
+
+# generates the boundaries for your graph
+lgrid2 <- expand.grid(X=pl2, 
+                     Y=pw2)
+
+knnPredGrid2 <- predict(knnModel2, newdata=lgrid2)
+knnPredGrid2 = as.numeric(knnPredGrid2)
+
+# get the points from the test data...
+testPred2 <- predict(knnModel2, newdata=test2)
+testPred2 <- as.numeric(testPred2)
+# this gets the points for the testPred...
+test2$Pred <- testPred2
+
+probs2 <- matrix(knnPredGrid2, length(pl2), length(pw2))
+
+gg2 <- ggplot(data=lgrid2) + stat_contour(aes(x=X, y=Y, z=knnPredGrid2),
+                            bins=1, color =  "black")  +
+  geom_point(aes(x=X, y=Y, colour=as.factor(knnPredGrid2)), size = 0.001, shape = 20) +
+  geom_point(data=test2, aes(x=X, y=Y, colour=as.factor(Color)),
+             size=1, alpha=5, shape=9)+
+  theme_minimal()+ scale_color_manual("",values = c("#344a58","#238694","#344a58","#238694"),labels = c("Groupe 1", "Groupe 2","Groupe 1", "Groupe 2")) + 
+  ggtitle("K=10")+
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text  = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r k100, echo = F}
+set.seed(128)
+indxTrain3 <- createDataPartition(y = df[, names(df) == "Color"], p = 0.7, list = F)
+
+train3 <- df[indxTrain3,]
+test3 <- df[-indxTrain3,]
+
+knnModel3 <- train(Color ~.,
+                  data = train3,
+                  method = 'knn',
+                  tuneGrid = expand.grid(k = 100),
+                  preProcess = c("center", "scale"))
+
+pl3 = seq(-3, 4.5, by=0.1)
+pw3 = seq(2, 9, by=0.1)
+
+# generates the boundaries for your graph
+lgrid3 <- expand.grid(X=pl3, 
+                     Y=pw3)
+
+knnPredGrid3 <- predict(knnModel3, newdata=lgrid3)
+knnPredGrid3 = as.numeric(knnPredGrid3)
+
+# get the points from the test data...
+testPred3 <- predict(knnModel3, newdata=test3)
+testPred3 <- as.numeric(testPred3)
+# this gets the points for the testPred...
+test3$Pred <- testPred3
+
+probs3 <- matrix(knnPredGrid3, length(pl3), length(pw3))
+
+gg3 <- ggplot(data=lgrid3) + stat_contour(aes(x=X, y=Y, z=knnPredGrid3),
+                            bins=1, color =  "black")  +
+  geom_point(aes(x=X, y=Y, colour=as.factor(knnPredGrid3)), size = 0.001, shape = 20) +
+  geom_point(data=test3, aes(x=X, y=Y, colour=as.factor(Color)),
+             size=1, alpha=5, shape=9)+
+  theme_minimal()+ scale_color_manual("",values = c("#344a58","#238694","#344a58","#238694"),labels = c("Groupe 1", "Groupe 2","Groupe 1", "Groupe 2")) + 
+  ggtitle("K=100")+
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text  = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r ggarange 2, echo=FALSE}
+ggarrange(gg1, gg2, gg3, nrow = 1)
+```
+
+Certaines library de R comme `caret` permette d'automatiser le choix de K. Ainsi le modèle test différents algorithmes avec une plage de k définie et sélectionne le meilleur modèle final.
+
+## Appliquer
+
+```{r share-again, echo=FALSE}
+xaringanExtra::use_share_again()
+```
+
+```{r embed-xaringan, echo=FALSE, fig.cap="[Slides](slides/index.html)"}
+xaringanExtra::embed_xaringan(url = "slides_knn_code/index.html", ratio = "16:9")
+```
+
+## Aller plus loin
