@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>index.utf8</title>
+    <meta charset="utf-8" />
+    <meta name="date" content="2021-03-12" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/shareon/shareon.min.css" rel="stylesheet" />
+    <script src="libs/shareon/shareon.min.js"></script>
+    <link href="libs/xaringanExtra-shareagain/shareagain.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-shareagain/shareagain.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <script src="libs/peerjs/peerjs.min.js"></script>
+    <script src="libs/tiny.toast/toast.min.js"></script>
+    <link href="libs/xaringanExtra-broadcast/broadcast.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-broadcast/broadcast.js"></script>
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: title-slide,center, top
+
+# 
+
+## 
+
+### 
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+# Application des kNN sur la base de données `iris` dans R 
+
+&lt;style type="text/css"&gt;
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab &gt; a {
+	color: #023d4d;
+}
+&lt;/style&gt;
+
+---
+## Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+data("iris")
+head(iris)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa
+## 7          4.6         3.4          1.4         0.3  setosa
+```
+
+]
+]
+
+---
+class: center, middle
+# Une première application avec la library `class`
+
+---
+## Les packages
+
+
+```r
+library(class)
+library(ggplot2)
+```
+
+---
+
+## Séparer les données **train/test**
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+set.seed(123)
+allrows &lt;- 1:nrow(iris)
+trainrows &lt;- sample(allrows, replace = F, size = 0.6*length(allrows))
+```
+
+
+```r
+train_iris &lt;- iris[trainrows, 1:4]
+train_label &lt;- iris[trainrows, 5]
+table(train_label)
+```
+
+
+```r
+test_iris &lt;- iris[-trainrows, 1:4]
+test_label &lt;- iris[-trainrows, 5]
+table(test_label)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+
+```
+##     Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 14           4.3         3.0          1.1         0.1
+## 50           5.0         3.3          1.4         0.2
+## 118          7.7         3.8          6.7         2.2
+## 43           4.4         3.2          1.3         0.2
+## 150          5.9         3.0          5.1         1.8
+```
+
+
+```
+## train_label
+##     setosa versicolor  virginica 
+##         30         26         34
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+
+```
+##    Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1           5.1         3.5          1.4         0.2
+## 2           4.9         3.0          1.4         0.2
+## 3           4.7         3.2          1.3         0.2
+## 5           5.0         3.6          1.4         0.2
+## 11          5.4         3.7          1.5         0.2
+```
+
+
+```
+## test_label
+##     setosa versicolor  virginica 
+##         20         24         16
+```
+
+]
+]
+
+---
+## Recherche du meilleur k
+
+.panelset[
+.panel[.panel-name[Code 1]
+
+
+```r
+error.train &lt;- NULL
+for(k in 1:20) {
+    pred_iris &lt;- knn(train = train_iris, test = train_iris, cl = train_label, k)
+    error.train[k]&lt;-1-mean(pred_iris==train_label)
+}
+error.train &lt;- data.frame(error.train)
+
+error.test &lt;- NULL
+for(k in 1:20) {
+    pred_iris &lt;- knn(train = train_iris, test = test_iris, cl = train_label, k)
+    error.test[k]&lt;-1-mean(pred_iris==test_label)
+}
+error.test &lt;- data.frame(error.test)
+```
+]
+.panel[.panel-name[Code 2]
+
+
+```r
+gg1 &lt;- ggplot() +
+  geom_line(data = error.test,aes(x=seq(1:20), y=error.test, color= "red")) +
+  geom_line(data = error.train,aes(x=seq(1:20), y=error.train, color = "blue")) +
+  xlab("K") + ylab("Error") + theme_minimal() +theme(legend.position="bottom")+
+  scale_color_manual("",values = c("#45a59d","#424a54"),labels = c("Training error", "Test error"))+
+  ggtitle("Erreur test et train en fonction de k")
+
+kbest&lt;-which.min(error.test$error.test)
+```
+
+]
+
+
+.panel[.panel-name[Résultats]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+]
+]
+
+---
+## Prediction avec meilleur k
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+Prediction&lt;-knn(train = train_iris, test = test_iris,
+                cl = train_label, k = kbest)
+Reference &lt;- test_label
+
+Matrice_confusions &lt;- table(Prediction,Reference)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##             Reference
+## Prediction   setosa versicolor virginica
+##   setosa         20          0         0
+##   versicolor      0         21         1
+##   virginica       0          3        15
+```
+
+]
+]
+
+
+---
+class: center, middle
+# Une seconde application avec la library `caret`
+
+---
+## Les packages
+
+
+```r
+library(caret)
+```
+
+---
+
+## Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+set.seed(123)
+#Spliting data as training and test set. Using createDataPartition() function from caret
+trainIndex &lt;- createDataPartition(iris$Species, p = .7,list = FALSE)
+train &lt;- iris[ trainIndex,]
+test  &lt;- iris[-trainIndex,]
+```
+
+
+```r
+table(train$Species)
+table(test$Species)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 7          4.6         3.4          1.4         0.3  setosa
+## 8          5.0         3.4          1.5         0.2  setosa
+```
+
+
+```
+## 
+##     setosa versicolor  virginica 
+##         35         35         35
+```
+
+]
+
+.panel[.panel-name[Résultats - Test]
+
+
+```
+##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1           5.1         3.5          1.4         0.2  setosa
+## 2           4.9         3.0          1.4         0.2  setosa
+## 6           5.4         3.9          1.7         0.4  setosa
+## 16          5.7         4.4          1.5         0.4  setosa
+## 18          5.1         3.5          1.4         0.3  setosa
+```
+
+
+```
+## 
+##     setosa versicolor  virginica 
+##         15         15         15
+```
+
+]
+]
+
+---
+## Cross validation
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+#Cross validation
+fitControl &lt;- trainControl(
+ method = "repeatedcv",
+ number = 10,
+ repeats = 5)
+```
+
+]
+]
+
+---
+## Apprentissage
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+#Cross validation
+dt.fit &lt;- train(Species ~ .,
+                data = train,
+                method = "knn",
+                tuneGrid = expand.grid(k = seq(3,20,2)),
+                trControl = fitControl,
+                preProcess=c("center", "scale"))
+```
+]
+
+.panel[.panel-name[Résultats1 - Résultat pour chaque k]
+
+
+```
+##    k  Accuracy     Kappa AccuracySD    KappaSD
+## 1  3 0.9446364 0.9164619 0.06738097 0.10184837
+## 2  5 0.9614242 0.9418458 0.06162933 0.09305981
+## 3  7 0.9808384 0.9711699 0.04749189 0.07159954
+## 4  9 0.9554949 0.9329467 0.06456038 0.09724761
+## 5 11 0.9553838 0.9326276 0.06768005 0.10212731
+## 6 13 0.9575657 0.9359487 0.06098004 0.09190270
+## 7 15 0.9539697 0.9304728 0.06609522 0.09983466
+## 8 17 0.9484848 0.9221458 0.06585670 0.09951097
+## 9 19 0.9506364 0.9254248 0.05633741 0.08504057
+```
+
+]
+
+.panel[.panel-name[Résultats2 - Meilleur Tune]
+
+
+```
+##   k
+## 3 7
+```
+
+]
+]
+
+---
+
+## Prediction
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+predictions &lt;- predict(dt.fit, test)
+
+confusion_matrix &lt;- confusionMatrix(predictions, test$Species)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##             Reference
+## Prediction   setosa versicolor virginica
+##   setosa         15          0         0
+##   versicolor      0         14         3
+##   virginica       0          1        12
+```
+
+]
+]
+
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "<div class=\"progress-bar-container\">\n  <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">\n  </div>\n</div>\n",
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

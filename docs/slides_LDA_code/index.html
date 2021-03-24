@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Analyse linéaire discriminante</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lilian Boissé | Jean Clark" />
+    <meta name="date" content="2021-02-26" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/shareon/shareon.min.css" rel="stylesheet" />
+    <script src="libs/shareon/shareon.min.js"></script>
+    <link href="libs/xaringanExtra-shareagain/shareagain.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-shareagain/shareagain.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <script src="libs/peerjs/peerjs.min.js"></script>
+    <script src="libs/tiny.toast/toast.min.js"></script>
+    <link href="libs/xaringanExtra-broadcast/broadcast.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-broadcast/broadcast.js"></script>
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: title-slide,center, top
+
+# Analyse linéaire discriminante
+
+## Application et code R
+
+### Lilian Boissé | Jean Clark
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+
+&lt;style type="text/css"&gt;
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab &gt; a {
+	color: #023d4d;
+}
+&lt;/style&gt;
+
+---
+## Les packages
+
+
+```r
+# Packages pour 1ère application 
+library(readr)
+library(discrim)
+library(ggplot2)
+library(rsample)
+# Packages à rajouter pour seconde application 
+library(recipes)
+library(parsnip)
+library(workflows)
+library(yardstick)
+library(tune)
+```
+
+---
+# Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+df&lt;-read_csv("Heart.csv")
+head(df,5)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## # A tibble: 5 x 15
+##      X1   Age   Sex ChestPain RestBP  Chol   Fbs RestECG MaxHR ExAng Oldpeak
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1     1    63     1 typical      145   233     1       2   150     0     2.3
+## 2     2    67     1 asymptom~    160   286     0       2   108     1     1.5
+## 3     3    67     1 asymptom~    120   229     0       2   129     1     2.6
+## 4     4    37     1 nonangin~    130   250     0       0   187     0     3.5
+## 5     5    41     0 nontypic~    130   204     0       2   172     0     1.4
+## # ... with 4 more variables: Slope &lt;dbl&gt;, Ca &lt;dbl&gt;, Thal &lt;chr&gt;, AHD &lt;chr&gt;
+```
+
+]
+]
+
+---
+# Transformer les colonnes `chr` en `fct`
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+df$ChestPain&lt;-as.factor(df$ChestPain)
+df$Thal&lt;-as.factor(df$Thal)
+df$AHD&lt;-as.factor(df$AHD)
+df&lt;-df[,-1]
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## # A tibble: 5 x 14
+##     Age   Sex ChestPain RestBP  Chol   Fbs RestECG MaxHR ExAng Oldpeak Slope
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+## 1    63     1 typical      145   233     1       2   150     0     2.3     3
+## 2    67     1 asymptom~    160   286     0       2   108     1     1.5     2
+## 3    67     1 asymptom~    120   229     0       2   129     1     2.6     2
+## 4    37     1 nonangin~    130   250     0       0   187     0     3.5     3
+## 5    41     0 nontypic~    130   204     0       2   172     0     1.4     1
+## # ... with 3 more variables: Ca &lt;dbl&gt;, Thal &lt;fct&gt;, AHD &lt;fct&gt;
+```
+
+]
+]
+---
+class: center, middle
+# Une première application basique
+
+
+---
+# Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+set.seed(123)
+# Séparer les données en données d'entrainement (75%) et de test (25%)
+AHD_split&lt;-initial_split(df, prop = 3/4)
+AHD_split
+# extraire les données d'entrainement/de test
+AHD_train&lt;-training(AHD_split)
+AHD_test&lt;-testing(AHD_split)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## &lt;Analysis/Assess/Total&gt;
+## &lt;228/75/303&gt;
+```
+
+]
+]
+
+---
+# Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+# Création du modèle sur données d'entrainement
+lda_mod &lt;-
+  discrim_linear(penalty = .1) %&gt;%
+  set_engine("mda") %&gt;%
+  fit(AHD ~ ., data = AHD_train)
+# Affichage de la matrice de confusion
+lda_mod$fit$confusion
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##          true
+## predicted  No Yes
+##       No  105  20
+##       Yes  11  86
+```
+
+]
+]
+---
+# Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```r
+
+AHD_test$lda &lt;-
+  predict(lda_mod, AHD_test, type = "prob")
+
+
+ggplot(AHD_test, aes(x = Age, y = MaxHR)) +
+  geom_point(aes(col = AHD), alpha = .5) +
+  geom_contour(data = AHD_test, aes(z = lda$.pred_Yes), col = "black", breaks = .5) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="504" /&gt;
+
+```r
+
+
+model &lt;- discrim_linear(penalty = 0.1)
+model
+update(model, penalty = 1)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="80%" /&gt;
+
+]
+]
+---
+class: center, middle
+# Une seconde application plus complète
+
+Utilisation des recettes du package `recipes` et du workflow du package `worflows` ([tidyverse](https://www.tidymodels.org/))
+
+
+---
+
+```r
+# create CV object from training data
+AHD_cv&lt;-vfold_cv(AHD_train) 
+```
+
+---
+# Construire la recette
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+AHD_recette&lt;-recipe(AHD ~ .,data = df) %&gt;% #le modèle
+step_normalize(all_numeric()) %&gt;% #Pré traitement : Normalisation
+step_knnimpute(all_predictors()) #Pré traitement : Imputer les valeurs manquantes par knn
+AHD_recette
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor         13
+## 
+## Operations:
+## 
+## Centering and scaling for all_numeric()
+## K-nearest neighbor imputation for all_predictors()
+```
+
+]
+]
+---
+# Créer le modèle
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+LDA_model&lt;-
+  discrim_linear() %&gt;%
+  set_args(penalty = tune()) %&gt;%
+  set_engine("mda") %&gt;%
+  set_mode("classification")
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## Linear Discriminant Model Specification (classification)
+## 
+## Main Arguments:
+##   penalty = tune()
+## 
+## Computational engine: mda
+```
+
+]
+]
+---
+# Workflow
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+# set the workflow
+LDA_workflow&lt;- workflow() %&gt;%
+# add the recipe
+add_recipe(AHD_recette) %&gt;%
+# add the model
+add_model(LDA_model)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## == Workflow ====================================================================
+## Preprocessor: Recipe
+## Model: discrim_linear()
+## 
+## -- Preprocessor ----------------------------------------------------------------
+## 2 Recipe Steps
+## 
+## * step_normalize()
+## * step_knnimpute()
+## 
+## -- Model -----------------------------------------------------------------------
+## Linear Discriminant Model Specification (classification)
+## 
+## Main Arguments:
+##   penalty = tune()
+## 
+## Computational engine: mda
+```
+
+]
+]
+
+---
+# Appliquer sur l'échantillon **train**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+LDA_grid&lt;-expand.grid(penalty = c(1,2,3))
+
+LDA_tune_results&lt;- LDA_workflow %&gt;%
+tune_grid(resamples = AHD_cv, #CV object
+grid=LDA_grid, # grid of values to try
+metrics = metric_set(accuracy, roc_auc) # metrics we care about
+)
+
+LDA_tune_results %&gt;%
+collect_metrics()
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## # A tibble: 6 x 7
+##   penalty .metric  .estimator  mean     n std_err .config             
+##     &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
+## 1       1 accuracy binary     0.834    10  0.0179 Preprocessor1_Model1
+## 2       1 roc_auc  binary     0.896    10  0.0140 Preprocessor1_Model1
+## 3       2 accuracy binary     0.838    10  0.0193 Preprocessor1_Model2
+## 4       2 roc_auc  binary     0.892    10  0.0154 Preprocessor1_Model2
+## 5       3 accuracy binary     0.825    10  0.0265 Preprocessor1_Model3
+## 6       3 roc_auc  binary     0.892    10  0.0147 Preprocessor1_Model3
+```
+
+]
+]
+
+
+---
+# Appliquer sur l'échantillon **train**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+param_final &lt;- LDA_tune_results %&gt;%
+select_best(metric = "accuracy") 
+param_final
+LDA_workflow &lt;- LDA_workflow %&gt;%
+finalize_workflow(param_final)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## # A tibble: 1 x 2
+##   penalty .config             
+##     &lt;dbl&gt; &lt;chr&gt;               
+## 1       2 Preprocessor1_Model2
+```
+
+]
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "<div class=\"progress-bar-container\">\n  <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">\n  </div>\n</div>\n",
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

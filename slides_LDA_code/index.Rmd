@@ -1,0 +1,365 @@
+---
+title: "Analyse linéaire discriminante"
+subtitle: "Application et code R"
+author: Lilian Boissé | Jean Clark
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false
+    lib_dir: libs 
+    nature:
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3)
+
+library(ymlthis)
+library(tidyverse)
+library(xaringan)
+library(xaringanExtra)
+library(palmerpenguins)
+xaringanExtra::use_panelset()
+xaringanExtra::use_share_again()
+xaringanExtra::style_share_again(
+  share_buttons = c("twitter", "linkedin", "pocket")
+)
+```
+
+```{r broadcast, echo=FALSE}
+xaringanExtra::use_broadcast()
+```
+
+class: title-slide,center, top
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author`
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+
+```{css, echo=FALSE}
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab > a {
+	color: #023d4d;
+}
+```
+
+---
+## Les packages
+
+```{r,message=FALSE}
+# Packages pour 1ère application 
+library(readr)
+library(discrim)
+library(ggplot2)
+library(rsample)
+# Packages à rajouter pour seconde application 
+library(recipes)
+library(parsnip)
+library(workflows)
+library(yardstick)
+library(tune)
+
+```
+
+---
+# Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+df<-read_csv("Heart.csv")
+head(df,5)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+head(df,5)
+```
+
+]
+]
+
+---
+# Transformer les colonnes `chr` en `fct`
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+df$ChestPain<-as.factor(df$ChestPain)
+df$Thal<-as.factor(df$Thal)
+df$AHD<-as.factor(df$AHD)
+df<-df[,-1]
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+head(df,5)
+```
+
+]
+]
+---
+class: center, middle
+# Une première application basique
+
+
+---
+# Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+set.seed(123)
+# Séparer les données en données d'entrainement (75%) et de test (25%)
+AHD_split<-initial_split(df, prop = 3/4)
+AHD_split
+# extraire les données d'entrainement/de test
+AHD_train<-training(AHD_split)
+AHD_test<-testing(AHD_split)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+AHD_split
+```
+
+]
+]
+
+---
+# Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+# Création du modèle sur données d'entrainement
+lda_mod <-
+  discrim_linear(penalty = .1) %>%
+  set_engine("mda") %>%
+  fit(AHD ~ ., data = AHD_train)
+# Affichage de la matrice de confusion
+lda_mod$fit$confusion
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+lda_mod$fit$confusion
+```
+
+]
+]
+---
+# Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+```{r, results='hide',warning=FALSE, message=FALSE}
+
+AHD_test$lda <-
+  predict(lda_mod, AHD_test, type = "prob")
+
+
+ggplot(AHD_test, aes(x = Age, y = MaxHR)) +
+  geom_point(aes(col = AHD), alpha = .5) +
+  geom_contour(data = AHD_test, aes(z = lda$.pred_Yes), col = "black", breaks = .5) +
+  theme_bw() +
+  theme(legend.position = "top")
+
+
+model <- discrim_linear(penalty = 0.1)
+model
+update(model, penalty = 1)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width='80%'}
+ggplot(AHD_test, aes(x = Age, y = MaxHR)) +
+  geom_point(aes(col = AHD), alpha = .5) +
+  geom_contour(data = AHD_test, aes(z = lda$.pred_Yes), col = "black", breaks = .5) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+]
+]
+---
+class: center, middle
+# Une seconde application plus complète
+
+Utilisation des recettes du package `recipes` et du workflow du package `worflows` ([tidyverse](https://www.tidymodels.org/))
+
+
+---
+```{r}
+# create CV object from training data
+AHD_cv<-vfold_cv(AHD_train) 
+```
+
+---
+# Construire la recette
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+AHD_recette<-recipe(AHD ~ .,data = df) %>% #le modèle
+step_normalize(all_numeric()) %>% #Pré traitement : Normalisation
+step_knnimpute(all_predictors()) #Pré traitement : Imputer les valeurs manquantes par knn
+AHD_recette
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+AHD_recette
+```
+
+]
+]
+---
+# Créer le modèle
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+LDA_model<-
+  discrim_linear() %>%
+  set_args(penalty = tune()) %>%
+  set_engine("mda") %>%
+  set_mode("classification")
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+LDA_model
+```
+
+]
+]
+---
+# Workflow
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+# set the workflow
+LDA_workflow<- workflow() %>%
+# add the recipe
+add_recipe(AHD_recette) %>%
+# add the model
+add_model(LDA_model)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+LDA_workflow
+```
+
+]
+]
+
+---
+# Appliquer sur l'échantillon **train**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+LDA_grid<-expand.grid(penalty = c(1,2,3))
+
+LDA_tune_results<- LDA_workflow %>%
+tune_grid(resamples = AHD_cv, #CV object
+grid=LDA_grid, # grid of values to try
+metrics = metric_set(accuracy, roc_auc) # metrics we care about
+)
+
+LDA_tune_results %>%
+collect_metrics()
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+LDA_tune_results %>%
+collect_metrics()
+```
+
+]
+]
+
+
+---
+# Appliquer sur l'échantillon **train**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+param_final <- LDA_tune_results %>%
+select_best(metric = "accuracy") 
+param_final
+LDA_workflow <- LDA_workflow %>%
+finalize_workflow(param_final)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+param_final
+```
+
+]
+]

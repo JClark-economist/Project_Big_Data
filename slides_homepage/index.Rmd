@@ -1,0 +1,166 @@
+---
+title: "Qu'est-ce que la classification ?"
+subtitle: "Une courte introduction"
+author: Lilian Boissé | Jean Clark
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false
+    lib_dir: libs 
+    nature:
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3)
+
+library(ymlthis)
+library(tidyverse)
+library(xaringan)
+library(xaringanExtra)
+library(palmerpenguins)
+xaringanExtra::use_panelset()
+xaringanExtra::use_share_again()
+xaringanExtra::style_share_again(
+  share_buttons = c("twitter", "linkedin", "pocket")
+)
+```
+
+```{r broadcast, echo=FALSE}
+xaringanExtra::use_broadcast()
+```
+
+class: title-slide,center, top
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author`
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+
+```{css, echo=FALSE}
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab > a {
+	color: #023d4d;
+}
+```
+
+
+```{r meta, echo=FALSE}
+library(metathis)
+meta() %>%
+  meta_general(
+    description = "Qu'est-ce que la classification ?",
+    generator = "xaringan and remark.js"
+  ) %>% 
+  meta_name("github-repo" = "/classification") %>% 
+  meta_social(
+    title = "Une introduction à la classification",
+    url = "http://mecen-univ-tours.fr/",
+    og_type = "website",
+    twitter_card_type = "summary_large_image"
+  )
+```
+
+## .big-text[Bienvenue.]
+---
+background-image: url(images/lin_reg.png)
+background-size: cover
+class: center,middle
+
+## Vous êtes probablement familiés avec la régression linéaire.
+### Si vous ne l'êtes pas, un petit rappel s'impose...
+---
+class: left,middle
+
+##La régression linéaire
+
+Imaginons que nous voulions expliquer le poids de d'un individu $i$ en fonction de certaines de ses caractéristiques. Par exemple :
+
+$$\underbrace{Poids_i}_{\text{Variable endogène }y}=\underbrace{\alpha}_{\text{Constante}}+\beta_1\underbrace{Taille_i}_{\text{Variable exogène }x}+\underbrace{\epsilon_i}_{\text{Erreur}}.$$
+
+La régression linéaire va permettre de déterminer si il existe un lien entre le poids et la taille d'un individu, ainsi qu'évaluer la nature de cette relation en minimisant la somme du carré des erreurs $\sum^n_{i=1}\epsilon_i^2$.
+
+Ici nous pourrions imaginer que le poids dépend positivement de la taille de l'individu. Et qu'en ayant seulement la taille de l'individu, grâce à la régression linéaire nous pourrions prédire, avec une précision relative, le poids. 
+
+---
+class: left,middle
+### Que se passe-t-il lorsque les variables endogènes ne sont pas quantitatives ?
+
+Imaginons maintenant que nous voulions prédire le sexe de l'individu $i$ en fonction de sa taille.
+
+$$Sexe_i=\alpha+\beta_1Taille_i+\epsilon_i.$$
+
+La variable $Sexe$ prend une valeur quand c'est un homme (en général on affecte $0$) et une autre à la femme (en général $1$)
+Tout de suite, un modèle de regression linéaire semble moins adapté. Pourquoi ?
+
+Car ici, on essaye de prédire une **réponse qualitative**.
+
+En prédisant une réponse qualitative on "**classe**" plutôt qu'on "**régresse**".
+
+---
+class: center,middle
+## Des exemples de réponses qualitatives
+
+ La couleur des yeux ;
+
+ L'état de santé d'une personne ;
+
+ Des tranches d'âges ;
+
+ L'état de la météo ;
+
+ ...
+ 
+---
+class: left,middle
+
+### Que fait-on pour prédire une réponse qualitative ?
+
+On utilise des techniques de **classification**, telles que la régression logistique, l'analyse linéaire discriminante, les K-plus proches voisins...
+
+### Des exemples d'utilisation des modèles de classification
+
+1. Une personne arrive aux urgences avec certains symptômes qui peuvent potentiellement être attribués à trois conditions médicales, laquelle ?
+
+2. Un service bancaire en ligne doit être capable de déterminer si une transaction est réalisée sur sur son site est frauduleuse ou non, en ne connaissant que l'adresse IP et l'historique de l'utilisateur.
+
+3. Avec des données sur des séquences ADN pour un nombre de patients avec ou sans une certaine maladie, un biologiste pourrait déterminer quelles mutations génétiques causent les maladies et celles qui ne les causent pas.
+
+---
+
+class: left,middle
+
+## Pour aller plus loin
+
+### Pourquoi la régression linéaire n'est pas adaptée ?
+
+

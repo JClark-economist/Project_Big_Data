@@ -1,0 +1,15 @@
+```{r meta, echo=FALSE}
+library(metathis)
+meta() %>%
+  meta_general(
+    description = "Qu'est-ce que la classification ?",
+    generator = "xaringan and remark.js"
+  ) %>% 
+  meta_name("github-repo" = "/classification") %>% 
+  meta_social(
+    title = "Une introduction à la classification",
+    url = "http://mecen-univ-tours.fr/",
+    og_type = "website",
+    twitter_card_type = "summary_large_image"
+  )
+```

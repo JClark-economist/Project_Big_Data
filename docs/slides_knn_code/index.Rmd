@@ -1,0 +1,366 @@
+---
+title: ""
+subtitle: ""
+author: 
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false
+    lib_dir: libs 
+    nature:
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3)
+
+library(ymlthis)
+library(tidyverse)
+library(xaringan)
+library(xaringanExtra)
+library(palmerpenguins)
+xaringanExtra::use_panelset()
+xaringanExtra::use_share_again()
+xaringanExtra::style_share_again(
+  share_buttons = c("twitter", "linkedin", "pocket")
+)
+```
+
+```{r broadcast, echo=FALSE}
+xaringanExtra::use_broadcast()
+```
+
+class: title-slide,center, top
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author`
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+# Application des kNN sur la base de données `iris` dans R 
+
+```{css, echo=FALSE}
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab > a {
+	color: #023d4d;
+}
+```
+
+---
+## Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+data("iris")
+head(iris)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+head(iris,7)
+```
+
+]
+]
+
+---
+class: center, middle
+# Une première application avec la library `class`
+
+---
+## Les packages
+
+```{r,message=FALSE}
+library(class)
+library(ggplot2)
+```
+
+---
+
+## Séparer les données **train/test**
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+set.seed(123)
+allrows <- 1:nrow(iris)
+trainrows <- sample(allrows, replace = F, size = 0.6*length(allrows))
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+train_iris <- iris[trainrows, 1:4]
+train_label <- iris[trainrows, 5]
+table(train_label)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+test_iris <- iris[-trainrows, 1:4]
+test_label <- iris[-trainrows, 5]
+table(test_label)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+```{r,echo=FALSE}
+head(train_iris,5)
+```
+
+```{r,echo=FALSE}
+table(train_label)
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+```{r,echo=FALSE}
+head(test_iris,5)
+```
+
+```{r,echo=FALSE}
+table(test_label)
+```
+
+]
+]
+
+---
+## Recherche du meilleur k
+
+.panelset[
+.panel[.panel-name[Code 1]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+error.train <- NULL
+for(k in 1:20) {
+    pred_iris <- knn(train = train_iris, test = train_iris, cl = train_label, k)
+    error.train[k]<-1-mean(pred_iris==train_label)
+}
+error.train <- data.frame(error.train)
+
+error.test <- NULL
+for(k in 1:20) {
+    pred_iris <- knn(train = train_iris, test = test_iris, cl = train_label, k)
+    error.test[k]<-1-mean(pred_iris==test_label)
+}
+error.test <- data.frame(error.test)
+```
+]
+.panel[.panel-name[Code 2]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+gg1 <- ggplot() +
+  geom_line(data = error.test,aes(x=seq(1:20), y=error.test, color= "red")) +
+  geom_line(data = error.train,aes(x=seq(1:20), y=error.train, color = "blue")) +
+  xlab("K") + ylab("Error") + theme_minimal() +theme(legend.position="bottom")+
+  scale_color_manual("",values = c("#45a59d","#424a54"),labels = c("Training error", "Test error"))+
+  ggtitle("Erreur test et train en fonction de k")
+
+kbest<-which.min(error.test$error.test)
+```
+
+]
+
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE, fig.height=6, fig.width=10, fig.align='center'}
+gg1 
+```
+
+]
+]
+
+---
+## Prediction avec meilleur k
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+Prediction<-knn(train = train_iris, test = test_iris,
+                cl = train_label, k = kbest)
+Reference <- test_label
+
+Matrice_confusions <- table(Prediction,Reference)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+Matrice_confusions
+```
+
+]
+]
+
+
+---
+class: center, middle
+# Une seconde application avec la library `caret`
+
+---
+## Les packages
+
+```{r,message=FALSE}
+library(caret)
+```
+
+---
+
+## Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+set.seed(123)
+#Spliting data as training and test set. Using createDataPartition() function from caret
+trainIndex <- createDataPartition(iris$Species, p = .7,list = FALSE)
+train <- iris[ trainIndex,]
+test  <- iris[-trainIndex,]
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+table(train$Species)
+table(test$Species)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+```{r,echo=FALSE}
+head(train,5)
+```
+
+```{r,echo=FALSE}
+table(train$Species)
+```
+
+]
+
+.panel[.panel-name[Résultats - Test]
+
+```{r,echo=FALSE}
+head(test, 5)
+```
+
+```{r,echo=FALSE}
+table(test$Species)
+```
+
+]
+]
+
+---
+## Cross validation
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+#Cross validation
+fitControl <- trainControl(
+ method = "repeatedcv",
+ number = 10,
+ repeats = 5)
+```
+
+]
+]
+
+---
+## Apprentissage
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+#Cross validation
+dt.fit <- train(Species ~ .,
+                data = train,
+                method = "knn",
+                tuneGrid = expand.grid(k = seq(3,20,2)),
+                trControl = fitControl,
+                preProcess=c("center", "scale"))
+```
+]
+
+.panel[.panel-name[Résultats1 - Résultat pour chaque k]
+
+```{r,echo=FALSE}
+dt.fit$results
+```
+
+]
+
+.panel[.panel-name[Résultats2 - Meilleur Tune]
+
+```{r,echo=FALSE}
+dt.fit$bestTune
+```
+
+]
+]
+
+---
+
+## Prediction
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+predictions <- predict(dt.fit, test)
+
+confusion_matrix <- confusionMatrix(predictions, test$Species)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+confusion_matrix$table
+```
+
+]
+]
+
+
+
+
+
+

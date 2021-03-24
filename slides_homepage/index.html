@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Qu’est-ce que la classification ?</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lilian Boissé | Jean Clark" />
+    <meta name="date" content="2021-02-24" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/shareon/shareon.min.css" rel="stylesheet" />
+    <script src="libs/shareon/shareon.min.js"></script>
+    <link href="libs/xaringanExtra-shareagain/shareagain.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-shareagain/shareagain.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <script src="libs/peerjs/peerjs.min.js"></script>
+    <script src="libs/tiny.toast/toast.min.js"></script>
+    <link href="libs/xaringanExtra-broadcast/broadcast.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-broadcast/broadcast.js"></script>
+    <meta name="description" content="Qu&#39;est-ce que la classification ?"/>
+    <meta name="generator" content="xaringan and remark.js"/>
+    <meta name="github-repo" content="/classification"/>
+    <meta name="twitter:title" content="Une introduction à la classification"/>
+    <meta name="twitter:description" content="Qu&#39;est-ce que la classification ?"/>
+    <meta name="twitter:url" content="http://mecen-univ-tours.fr/"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta property="og:title" content="Une introduction à la classification"/>
+    <meta property="og:description" content="Qu&#39;est-ce que la classification ?"/>
+    <meta property="og:url" content="http://mecen-univ-tours.fr/"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:locale" content="en_US"/>
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: title-slide,center, top
+
+# Qu'est-ce que la classification ?
+
+## Une courte introduction
+
+### Lilian Boissé | Jean Clark
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+
+&lt;style type="text/css"&gt;
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab &gt; a {
+	color: #023d4d;
+}
+&lt;/style&gt;
+
+
+
+
+## .big-text[Bienvenue.]
+---
+background-image: url(images/lin_reg.png)
+background-size: cover
+class: center,middle
+
+## Vous êtes probablement familiés avec la régression linéaire.
+### Si vous ne l'êtes pas, un petit rappel s'impose...
+---
+class: left,middle
+
+##La régression linéaire
+
+Imaginons que nous voulions expliquer le poids de d'un individu `\(i\)` en fonction de certaines de ses caractéristiques. Par exemple :
+
+`$$\underbrace{Poids_i}_{\text{Variable endogène }y}=\underbrace{\alpha}_{\text{Constante}}+\beta_1\underbrace{Taille_i}_{\text{Variable exogène }x}+\underbrace{\epsilon_i}_{\text{Erreur}}.$$`
+
+La régression linéaire va permettre de déterminer si il existe un lien entre le poids et la taille d'un individu, ainsi qu'évaluer la nature de cette relation en minimisant la somme du carré des erreurs `\(\sum^n_{i=1}\epsilon_i^2\)`.
+
+Ici nous pourrions imaginer que le poids dépend positivement de la taille de l'individu. Et qu'en ayant seulement la taille de l'individu, grâce à la régression linéaire nous pourrions prédire, avec une précision relative, le poids. 
+
+---
+class: left,middle
+### Que se passe-t-il lorsque les variables endogènes ne sont pas quantitatives ?
+
+Imaginons maintenant que nous voulions prédire le sexe de l'individu `\(i\)` en fonction de sa taille.
+
+`$$Sexe_i=\alpha+\beta_1Taille_i+\epsilon_i.$$`
+
+La variable `\(Sexe\)` prend une valeur quand c'est un homme (en général on affecte `\(0\)`) et une autre à la femme (en général `\(1\)`)
+Tout de suite, un modèle de regression linéaire semble moins adapté. Pourquoi ?
+
+Car ici, on essaye de prédire une **réponse qualitative**.
+
+En prédisant une réponse qualitative on "**classe**" plutôt qu'on "**régresse**".
+
+---
+class: center,middle
+## Des exemples de réponses qualitatives
+
+ La couleur des yeux ;
+
+ L'état de santé d'une personne ;
+
+ Des tranches d'âges ;
+
+ L'état de la météo ;
+
+ ...
+ 
+---
+class: left,middle
+
+### Que fait-on pour prédire une réponse qualitative ?
+
+On utilise des techniques de **classification**, telles que la régression logistique, l'analyse linéaire discriminante, les K-plus proches voisins...
+
+### Des exemples d'utilisation des modèles de classification
+
+1. Une personne arrive aux urgences avec certains symptômes qui peuvent potentiellement être attribués à trois conditions médicales, laquelle ?
+
+2. Un service bancaire en ligne doit être capable de déterminer si une transaction est réalisée sur sur son site est frauduleuse ou non, en ne connaissant que l'adresse IP et l'historique de l'utilisateur.
+
+3. Avec des données sur des séquences ADN pour un nombre de patients avec ou sans une certaine maladie, un biologiste pourrait déterminer quelles mutations génétiques causent les maladies et celles qui ne les causent pas.
+
+---
+
+class: left,middle
+
+## Pour aller plus loin
+
+### Pourquoi la régression linéaire n'est pas adaptée ?
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "<div class=\"progress-bar-container\">\n  <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">\n  </div>\n</div>\n",
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
