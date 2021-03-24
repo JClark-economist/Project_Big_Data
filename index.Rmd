@@ -1,0 +1,69 @@
+---
+title: "Techniques de classement et de prédiction"
+author:
+- name: Lilian Boissé | Jean Clark
+  url: https://alison.rbind.io
+  affiliation: Mécen
+  affiliation_url: http://mecen-univ-tours.fr/
+date: "`r Sys.Date()`"
+description: |
+   Ou comment réaliser des prédictions ?
+site: distill::distill_website
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Introduction 
+
+L'objectif de ce site est de vous introduire certaines techniques de classement utilisés quotidiennement par les acteurs du monde de la Data Science et de la statistique. Vous montrer de façon intuitive le fonctionnement des modèles, vous donner des exemples d'application et si possible, prendre du plaisir en apprenant, tels sont les objectifs de ce site. 
+
+Nous nous concentrerons sur les modèles les plus communs de classification supervisée, il convient donc de débuter par vous introduire ce qu'est la classification, puis les modèles que nous présenterons.
+
+Dans la présentation suivante, vous découvrirez une introduction à la classification.
+
+```{r share-again, echo=FALSE}
+xaringanExtra::use_share_again()
+```
+
+```{r embed-xaringan, echo=FALSE, fig.cap="[Slides](slides/index.html)"}
+xaringanExtra::embed_xaringan(url = "slides_homepage/index.html", ratio = "16:9")
+```
+\
+
+## Prérequis pour la suite 
+
+Nous allons introduire des concepts statistiques qui recquièrent des connaissances de bases, telles que : 
+
++ Les notions de moyennes, variances, écarts-type ;
+
++ Des notions de mathématiques dans l'espace ; 
+
++ Si vous voulez allez plus loin, nous vous conseillons le livre [ISLR (An Introduction to Statistical Learning with Applications in R)](https://link.springer.com/book/10.1007%2F978-1-4614-7138-7) sur lequel nous nous sommes basés.
+
+Vous trouverez sur ce site des ressources sur les [notions de distances, moyennes, variances et covariances](Notions.html). 
+
+
+
+
+<aside>Des exemples d'applications R seront donnés. Nous vous recommendons vivement d'installer [R](https://www.r-project.org/), ainsi que [RStudio](https://rstudio.com/products/rstudio/) afin de pouvoir tester le code vous même. </aside>
+
+
+## Les modèles présentés
+
+Chaque modèle qui sera présenté plus en détails dans l'onglet [COURS](models.html).
+
++ La régression logistique
+
++ [L'analyse linéaire discriminante](LDA.html)
+
++ [L'analyse quadratique discriminante](QDA.html)
+
++ [Les K-Plus proches voisins](KNN.html)
+
+
+## Remerciements {.appendix}
+
+Ce site a été réalisé par le [package distill](https://rstudio.github.io/distill/) et inspiré du site de [Alison Hill](https://alison.rbind.io) et [Desirée De Leon](https://desiree.rbind.io/), ["teaching-in-production"](https://rstudio-education.github.io/teaching-in-production/).
