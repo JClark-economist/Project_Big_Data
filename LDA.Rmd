@@ -1,0 +1,375 @@
+---
+title: "Analyse factorielle discriminante"
+description: |
+  Une introduction aux méthodes statistiques nécessaires à la classification
+site: distill::distill_website
+---
+
+## Comprendre
+
+L'objectif de la discrimination linéaire, ainsi que celui des autres méthodes de discrimination, consiste à prédire la valeur que prendra une variable qualitative à $k$ catégories à l’aide de $p$ prédicteurs, qui seront généralement numériques (il existe des cas où l'on pourra utiliser d'autres variables catégorielles, par exemples les variables catégorielles ordonnées, mais cela posera d'autres problèmes).
+
+Les données vont consister en $n$ observations réparties en $k$ classes et décrites par $p$ variables :
+
+$$
+\text{Variables exogènes : }X_1, X_2, X_3, ..., X_p,\\
+\text{Variables endogènes : }Y.
+$$
+Soyons plus explicites et revenons à notre premier exemple. Il faudrait, par exemple, prédire le sexe de l'individu (variable $Y$) qui peut prendre $k=2$ catégories à l'aide de $p=2$ prédicteurs (par exemple) soient *la taille* ou $X_1$ et *le poids* ou $X_2$.
+
++ L'analyse discriminante peut d'abord servir dans le cadre descriptif. On va chercher les combinaisons linéaires de variables qui permettent de séparer le mieux possible les catégories $k$ de la variable d'intérêt et de pouvoir donner des représentations graphiques qui montreront au mieux cette séparation.
+
++ Mais une fois ces combinaisons trouvées, l'analyse discriminante va permettre de décider de la catégorie à affecter à un nouvel individu. On peut dire qu'elle va maintenant servir dans un cadre décisionnel, en prédisant.
+
+On observe le nuage de points de la figure suivante. Les prédicteurs sont les axes des abscisses et des ordonnées $X1$ et $X2$, la variable à expliquer est $Y$ qui correspond aux 3 couleurs déterminant les 3 classes. Dans cet exemple d’école les 3 classes sont clairement séparées. Le but est de construire un axe discriminant qui par projection séparera les 3 classes.
+    
+```{r data pour graph zinzin, echo = F}
+df1 <- data.frame(X= rnorm(50,0,1), Y= rnorm(50, 5,1), Color = factor("Groupe 1"))
+df2 <- data.frame(X= rnorm(50, 5,0.4), Y= rnorm(50, 5,0.7), Color = factor("Groupe 2"))
+df3 <- data.frame(X= rnorm(50, 5,0.7), Y= rnorm(50, 0,0.5), Color = factor("Groupe 3"))
+
+df1$c <- df1$Y-df1$X
+df1$xe <- (8 - df1$c)/2
+df1$ye <- -df1$xe + 8
+
+df2$c <- df2$Y-df2$X
+df2$xe <- (8 - df2$c)/2
+df2$ye <- -df2$xe + 8
+
+df3$c <- df3$Y-df3$X
+df3$xe <- (8 - df3$c)/2
+df3$ye <- -df3$xe + 8
+```
+
+ 
+
+```{r graphe zinzin, echo = F}
+library(plotly)
+
+# surlignage des groupes/ tracer les elipses
+cluster1 = list(
+  type = 'circle',
+  xref ='x', yref='y',
+  x0=min(df1$X), y0=min(df1$Y),
+  x1=max(df1$X), y1=max(df1$Y),
+  opacity=0.25,
+  line = list(color="#344a58"),
+  fillcolor="#344a58")
+
+cluster2 = list(
+  type = 'circle',
+  xref ='x', yref='y',
+  x0=min(df2$X), y0=min(df2$Y),
+  x1=max(df2$X), y1=max(df2$Y),
+  opacity=0.25,
+  line = list(color="pink"),
+  fillcolor="pink")
+
+cluster3 = list(
+  type = 'circle',
+  xref ='x', yref='y',
+  x0=min(df3$X), y0=min(df3$Y),
+  x1=max(df3$X), y1=max(df3$Y),
+  opacity=0.25,
+  line = list(color="#238694"),
+  fillcolor="#238694")
+
+# Création des lignes
+
+ligne1 = list(
+  type = 'line',
+  xref ='x', yref='y',
+  x0=2.5, y0=-3,
+  x1=2.5, y1=9,
+  opacity=0.5,
+  line = list(color="gray"),
+  fillcolor="gray")
+
+
+ligne2 = list(
+  type = 'line',
+  xref ='x', yref='y',
+  x0=-3, y0=2,
+  x1=9, y1=2,
+  opacity=0.5,
+  line = list(color="gray"),
+  fillcolor="gray")
+
+ligne3 = list(
+  type = 'line',
+  xref ='x', yref='y',
+  x0=0, y0=8,
+  x1=8, y1=0,
+  opacity=0.5,
+  line = list(color="gray"))
+
+proj_g1_l1 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=2.5, y0=max(df1$Y),
+  x1=2.5, y1=min(df1$Y),
+  line = list(color="#344a58",
+              dash = "dot",
+              width = 5)
+  )
+
+
+proj_g2_l1 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=2.5, y0=max(df2$Y),
+  x1=2.5, y1=min(df2$Y),
+  line = list(color="pink",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g3_l1 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=2.5, y0=max(df3$Y),
+  x1=2.5, y1=min(df3$Y),
+  line = list(color="#238694",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g1_l2 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=max(df1$X), y0=2,
+  x1=min(df1$X), y1=2,
+  line = list(color="#344a58",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g2_l2 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=max(df2$X), y0=2,
+  x1=min(df2$X), y1=2,
+  line = list(color="pink",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g3_l2 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=max(df3$X), y0=2,
+  x1=min(df3$X), y1=2,
+  line = list(color="#238694",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g1_l3 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=min(df1$xe), y0=max(df1$ye),
+  x1=max(df1$xe), y1=min(df1$ye),
+  line = list(color="#344a58",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g2_l3 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=min(df2$xe), y0=max(df2$ye),
+  x1=max(df2$xe), y1=min(df2$ye),
+  line = list(color="pink",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+proj_g3_l3 = list(
+  type = "line",
+  xref ='x', yref='y',
+  x0=min(df3$xe), y0=max(df3$ye),
+  x1=max(df3$xe), y1=min(df3$ye),
+  line = list(color="#238694",
+              dash = "dot",
+              width = 5)
+  )
+
+ 
+
+
+# updatemenus component
+updatemenus <- list(
+  list(
+    y = 1,
+    buttons = list(
+
+ 
+
+ 
+
+ 
+
+      list(
+        label = "Surligner les Groupes",
+        method = "relayout",
+        args = list(list(shapes = c()))),
+
+ 
+
+ 
+
+ 
+
+      list(
+        label = "Groupe 1",
+        method = "relayout",
+        args = list(list(shapes = list(cluster1, c(), c())))),
+
+ 
+
+ 
+
+ 
+
+      list(
+        label = "Groupe 2",
+        method = "relayout",
+        args = list(list(shapes = list(c(), cluster2, c())))),
+      list(
+        label = "Groupe 3",
+        method = "relayout",
+        args = list(list(shapes = list(c(), cluster3, c())))),
+
+ 
+
+ 
+
+ 
+
+      list(
+        label = "Tous les Groupes",
+        method = "relayout",
+        args = list(list(shapes = list(cluster1,cluster2, cluster3))))
+    )
+  ),list(
+    y=0.8,
+    buttons = list(
+      list(
+        label = "Séparer les Groupes",
+        method = "relayout",
+        args = list(list(shapes = c()))),
+      list(
+        label = "Axe 1",
+        method = "relayout",
+        args = list(list(shapes = list(ligne1, c(), c(), proj_g1_l1, proj_g2_l1, proj_g3_l1, c(), c(), c(), c(), c(), c())))),
+      list(
+        label = "Axe 2",
+        method = "relayout",
+        args = list(list(shapes = list(c(), ligne2, c(), c(), c(), c(), proj_g1_l2, proj_g2_l2, proj_g3_l2, c(),c(), c())))),
+      list(
+        label = "Axe 3",
+        method = "relayout",
+        args = list(list(shapes = list(c(), c(), ligne3, c(), c(), c(), c(), c(), c(), proj_g1_l3, proj_g2_l3, proj_g3_l3))))
+    )
+  )
+)
+
+ 
+
+ 
+
+ 
+
+fig <- plot_ly(type = 'scatter', mode='markers') %>%
+  add_trace(x=df1$X, y=df1$Y, mode='markers', marker=list(color="#344a58"), name = "Groupe 1") %>%
+  add_trace(x=df2$X, y=df2$Y, mode='markers', marker=list(color='pink'), name = "Groupe 2") %>%
+  add_trace(x=df3$X, y=df3$Y, mode='markers', marker=list(color='#238694'), name = "Groupe 3") %>%
+  layout(title = "Projection des groupes sur les différents axes", showlegend = TRUE,
+         updatemenus = updatemenus) 
+fig
+```
+
+ 
+
+```{r graph zinzin suite, echo = F}
+fig2 <- plot_ly() %>% 
+  add_histogram(x=df1$X, visible = T, marker=list(color="#344a58", opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 1") %>%
+  add_histogram(x=df2$X, visible = T, marker=list(color='pink', opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 2") %>%
+  add_histogram(x=df3$X, visible = T, marker=list(color='#238694', opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 3") %>% 
+  add_histogram(x=df1$Y, visible = F,marker=list(color="#344a58", opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 1") %>%
+  add_histogram(x=df2$Y, visible = F, marker=list(color='pink', opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 2") %>%
+  add_histogram(x=df3$Y, visible = F, marker=list(color='#238694', opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 3") %>% 
+  add_histogram(x=df1$xe, visible = F,marker=list(color="#344a58", opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 1") %>%
+  add_histogram(x=df2$xe, visible = F, marker=list(color='pink', opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 2") %>%
+  add_histogram(x=df3$xe, visible = F, marker=list(color='#238694', opacity = 0.7), xbins = list(size = 0.25), name = "Groupe 3") %>% 
+  layout(
+    title = "Répartition des projections des groupes sur les différents axes",
+    barmode = "overlay",
+    updatemenus = list(
+      list(
+        y = 0.7,
+        buttons = list(
+          list(method = "restyle",
+               args = list("visible", list(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE)),
+               label = "Axe 1"),
+          
+          list(method = "restyle",
+               args = list("visible", list( FALSE, FALSE, FALSE,TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)),
+               label = "Axe 2"),
+
+ 
+
+          list(method = "restyle",
+               args = list("visible", list(FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE)),
+               label = "Axe 3")))
+    )
+  )
+
+ 
+
+
+fig2
+```
+
+On comprend ici avec ce graphique les différents problèmes que l'on va rencontrer.
+
++ Nous avons montré un exemple de séparation des groupes par projection orthogonale mais est-ce la meilleure façon de faire ?
++ Que va-t-on chercher à éloigner le plus, les points moyens de chaque groupe, les points au bord ?  
++ Comment pourrions nous nous servir des variances intra, inter et totale ?
+
+
+Quels critères va-t-on donc choisir pour séparer les classes au mieux ?
+
+Une réponse courte : nous allons maximiser le rapport inertie inter-classes et inertie totale (notions vues [ici](Notions.html)).
+
+## Appliquer
+
+```{r share-again, echo=FALSE}
+xaringanExtra::use_share_again()
+```
+
+```{r embed-xaringan, echo=FALSE, fig.cap="[Slides](slides/index.html)"}
+xaringanExtra::embed_xaringan(url = "slides_LDA_code/index.html", ratio = "16:9")
+```
+\
+
+## Aller plus loin
+
+### Règle géométrique d'affectation
+
+
+### Point de vue probabiliste
