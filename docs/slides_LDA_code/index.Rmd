@@ -60,6 +60,7 @@ background-size: 6%
 
 ---
 class: center, middle
+# Applications d'une LDA sur la base de données `Default` dans R 
 
 ```{css, echo=FALSE}
 .panelset {
@@ -74,195 +75,234 @@ class: center, middle
 ```
 
 ---
+## Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+library(ISLR)
+df <- Default[,c(1,3,4)]
+head(df)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+head(df,7)
+```
+
+]
+]
+
+---
+class: center, middle
+# Une première application avec la library `MASS`
+
+---
 ## Les packages
 
 ```{r,message=FALSE}
-# Packages pour 1ère application 
-library(readr)
-library(discrim)
+library(MASS)
 library(ggplot2)
 library(rsample)
-# Packages à rajouter pour seconde application 
-library(recipes)
-library(parsnip)
-library(workflows)
-library(yardstick)
-library(tune)
-
 ```
 
 ---
-# Charger la base de données
 
-.panelset[
-.panel[.panel-name[Code]
-
-```{r, results='hide',warning=FALSE, message=FALSE}
-df<-read_csv("Heart.csv")
-head(df,5)
-```
-]
-
-.panel[.panel-name[Résultats]
-
-```{r,echo=FALSE}
-head(df,5)
-```
-
-]
-]
-
----
-# Transformer les colonnes `chr` en `fct`
-
-.panelset[
-.panel[.panel-name[Code]
-
-```{r, results='hide',warning=FALSE, message=FALSE}
-df$ChestPain<-as.factor(df$ChestPain)
-df$Thal<-as.factor(df$Thal)
-df$AHD<-as.factor(df$AHD)
-df<-df[,-1]
-```
-]
-
-.panel[.panel-name[Résultats]
-
-```{r,echo=FALSE}
-head(df,5)
-```
-
-]
-]
----
-class: center, middle
-# Une première application basique
-
-
----
-# Séparer les données **train/test**
-
+## Séparer les données **train/test**
 .panelset[
 .panel[.panel-name[Code]
 
 ```{r, results='hide',warning=FALSE, message=FALSE}
 set.seed(123)
-# Séparer les données en données d'entrainement (75%) et de test (25%)
-AHD_split<-initial_split(df, prop = 3/4)
-AHD_split
-# extraire les données d'entrainement/de test
-AHD_train<-training(AHD_split)
-AHD_test<-testing(AHD_split)
+data_split <- df %>% initial_split(prop = 2/3)
+#création des sous-échantillons apprentissage-test
+test_data <- data_split %>% testing()
+train_data <- data_split %>% training()
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+head(train_data)
+table(train_data$default)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+head(test_data)
+table(test_data$default)
 ```
 ]
 
-.panel[.panel-name[Résultats]
+.panel[.panel-name[Résultats - Train]
 
 ```{r,echo=FALSE}
-AHD_split
+head(train_data)
+```
+
+
+```{r,echo=FALSE}
+table(train_data$default)
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+```{r, echo=FALSE}
+head(test_data)
+```
+
+
+```{r, echo=FALSE}
+table(test_data$default)
 ```
 
 ]
 ]
 
 ---
-# Séparer les données **train/test**
+## Apprentissage du modèle
 
 .panelset[
 .panel[.panel-name[Code]
 
 ```{r, results='hide',warning=FALSE, message=FALSE}
-# Création du modèle sur données d'entrainement
-lda_mod <-
-  discrim_linear(penalty = .1) %>%
-  set_engine("mda") %>%
-  fit(AHD ~ ., data = AHD_train)
-# Affichage de la matrice de confusion
-lda_mod$fit$confusion
+lda.fit <- lda(default~., data = train_data)
 ```
 ]
 
 .panel[.panel-name[Résultats]
 
 ```{r,echo=FALSE}
-lda_mod$fit$confusion
+lda.fit 
 ```
 
 ]
 ]
+
 ---
-# Séparer les données **train/test**
+## Prédiction
 
 .panelset[
 .panel[.panel-name[Code]
+
 ```{r, results='hide',warning=FALSE, message=FALSE}
-
-AHD_test$lda <-
-  predict(lda_mod, AHD_test, type = "prob")
-
-
-ggplot(AHD_test, aes(x = Age, y = MaxHR)) +
-  geom_point(aes(col = AHD), alpha = .5) +
-  geom_contour(data = AHD_test, aes(z = lda$.pred_Yes), col = "black", breaks = .5) +
-  theme_bw() +
-  theme(legend.position = "top")
-
-
-model <- discrim_linear(penalty = 0.1)
-model
-update(model, penalty = 1)
+res.lda <- predict(lda.fit, newdata =test_data)
+Matrice_confusion <- table(res.lda$class, test_data$default)
 ```
 ]
 
 .panel[.panel-name[Résultats]
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width='80%'}
-ggplot(AHD_test, aes(x = Age, y = MaxHR)) +
-  geom_point(aes(col = AHD), alpha = .5) +
-  geom_contour(data = AHD_test, aes(z = lda$.pred_Yes), col = "black", breaks = .5) +
-  theme_bw() +
-  theme(legend.position = "top")
+```{r,echo=FALSE}
+Matrice_confusion 
 ```
+]
+]
 
-]
-]
+
 ---
 class: center, middle
 # Une seconde application plus complète
 
-Utilisation des recettes du package `recipes` et du workflow du package `worflows` ([tidyverse](https://www.tidymodels.org/))
-
+Utilisation des recettes du package `recipes` et du workflow du package `workflows` ([tidyverse](https://www.tidymodels.org/))
 
 ---
-```{r}
-# create CV object from training data
-AHD_cv<-vfold_cv(AHD_train) 
+## Les packages
+
+```{r,message=FALSE}
+library(recipes)
+library(parsnip)
+library(workflows)
+library(yardstick)
+library(tune)
+library(rsample)
+library(discrim)
+library(mda)
 ```
 
 ---
-# Construire la recette
 
+## Séparer les données **train/test**
 .panelset[
 .panel[.panel-name[Code]
 
 ```{r, results='hide',warning=FALSE, message=FALSE}
-AHD_recette<-recipe(AHD ~ .,data = df) %>% #le modèle
-step_normalize(all_numeric()) %>% #Pré traitement : Normalisation
-step_knnimpute(all_predictors()) #Pré traitement : Imputer les valeurs manquantes par knn
-AHD_recette
+set.seed(123)
+data_split <- df %>% initial_split(prop = 2/3)
+#création des sous-échantillons apprentissage-test
+test_data <- data_split %>% testing()
+train_data <- data_split %>% training()
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+head(train_data)
+table(train_data$default)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+head(test_data)
+table(test_data$default)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+```{r,echo=FALSE}
+head(train_data)
+```
+
+
+```{r,echo=FALSE}
+table(train_data$default)
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+```{r, echo=FALSE}
+head(test_data)
+```
+
+
+```{r, echo=FALSE}
+table(test_data$default)
+```
+
+]
+]
+---
+## Données d'entrainement en cross validation
+```{r}
+# create CV object from training data
+train_data_cv<-vfold_cv(train_data) 
+```
+
+---
+## Construire la recette
+
+.panelset[
+.panel[.panel-name[Code]
+
+Choix des variables et pré traitement (normalisation des variables et imputation des valeurs manquantes par knn)
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+default_recette<-recipe(default ~ .,data = df) %>% 
+  step_normalize(all_numeric()) %>%
+  step_knnimpute(all_predictors()) 
 ```
 ]
 
 .panel[.panel-name[Résultats]
 
 ```{r,echo=FALSE}
-AHD_recette
+default_recette
 ```
 
 ]
 ]
 ---
-# Créer le modèle
+## Créer le modèle
 
 .panelset[
 .panel[.panel-name[Code]
@@ -273,6 +313,7 @@ LDA_model<-
   set_args(penalty = tune()) %>%
   set_engine("mda") %>%
   set_mode("classification")
+
 ```
 ]
 
@@ -285,18 +326,15 @@ LDA_model
 ]
 ]
 ---
-# Workflow
+## Initialisation du workflow
 
 .panelset[
 .panel[.panel-name[Code]
 
 ```{r, results='hide',warning=FALSE, message=FALSE}
-# set the workflow
-LDA_workflow<- workflow() %>%
-# add the recipe
-add_recipe(AHD_recette) %>%
-# add the model
-add_model(LDA_model)
+LDA_workflow<- workflow() %>% 
+  add_recipe(default_recette) %>%  # ajout de la recette
+  add_model(LDA_model) # ajout du modèle
 ```
 ]
 
@@ -310,7 +348,7 @@ LDA_workflow
 ]
 
 ---
-# Appliquer sur l'échantillon **train**
+## Appliquer sur l'échantillon **train_cv**
 
 .panelset[
 .panel[.panel-name[Code]
@@ -319,13 +357,13 @@ LDA_workflow
 LDA_grid<-expand.grid(penalty = c(1,2,3))
 
 LDA_tune_results<- LDA_workflow %>%
-tune_grid(resamples = AHD_cv, #CV object
-grid=LDA_grid, # grid of values to try
-metrics = metric_set(accuracy, roc_auc) # metrics we care about
+  tune_grid(resamples = train_data_cv,
+            grid=LDA_grid,
+            metrics = metric_set(accuracy, roc_auc) 
 )
 
 LDA_tune_results %>%
-collect_metrics()
+  collect_metrics()
 ```
 ]
 
@@ -333,7 +371,7 @@ collect_metrics()
 
 ```{r,echo=FALSE}
 LDA_tune_results %>%
-collect_metrics()
+  collect_metrics()
 ```
 
 ]
@@ -341,24 +379,116 @@ collect_metrics()
 
 
 ---
-# Appliquer sur l'échantillon **train**
+## Appliquer sur l'échantillon **train**
 
 .panelset[
 .panel[.panel-name[Code]
 
 ```{r, results='hide',warning=FALSE, message=FALSE}
 param_final <- LDA_tune_results %>%
-select_best(metric = "accuracy") 
-param_final
+  select_best(metric = "accuracy") 
+
 LDA_workflow <- LDA_workflow %>%
-finalize_workflow(param_final)
+  finalize_workflow(param_final)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+lda_fit <- LDA_workflow %>%
+  last_fit(data_split)
+```
+]
+
+.panel[.panel-name[Résultats - Paramètre final]
+
+```{r,echo=FALSE}
+param_final
+```
+
+]
+]
+
+---
+## Appliquer sur l'échantillon **test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+lda_fit <- LDA_workflow %>%
+  last_fit(data_split)
 ```
 ]
 
 .panel[.panel-name[Résultats]
 
 ```{r,echo=FALSE}
-param_final
+lda.fit
+```
+
+]
+]
+
+---
+## Extraction des informations utiles
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+test_performance <- lda_fit %>% collect_metrics()
+test_predictions <- lda_fit %>% collect_predictions()
+```
+]
+
+.panel[.panel-name[Résultats performance]
+
+```{r,echo=FALSE}
+test_performance
+```
+
+]
+.panel[.panel-name[Résultats prédictions]
+
+```{r,echo=FALSE}
+test_predictions
+```
+
+]
+]
+
+---
+## Ajustement du modèle final et utilisation
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+final_model <- LDA_workflow %>% fit(df)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+new_ind <- tribble(~balance, ~income, 286.38, 44595.868)
+```
+
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+predict(final_model, new_data = new_ind)
+```
+]
+
+.panel[.panel-name[Résultat - nouvel individu]
+
+```{r,echo=FALSE}
+new_ind
+```
+
+]
+
+.panel[.panel-name[Résultat - prédiction]
+
+```{r,echo=FALSE}
+predict(final_model, new_data = new_ind)
 ```
 
 ]

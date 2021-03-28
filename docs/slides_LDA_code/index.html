@@ -4,7 +4,7 @@
     <title>Analyse linéaire discriminante</title>
     <meta charset="utf-8" />
     <meta name="author" content="Lilian Boissé | Jean Clark" />
-    <meta name="date" content="2021-02-26" />
+    <meta name="date" content="2021-03-28" />
     <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/panelset/panelset.css" rel="stylesheet" />
@@ -48,6 +48,7 @@ background-size: 6%
 
 ---
 class: center, middle
+# Applications d'une LDA sur la base de données `Default` dans R 
 
 &lt;style type="text/css"&gt;
 .panelset {
@@ -62,135 +63,133 @@ class: center, middle
 &lt;/style&gt;
 
 ---
+## Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+library(ISLR)
+df &lt;- Default[,c(1,3,4)]
+head(df)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##   default   balance    income
+## 1      No  729.5265 44361.625
+## 2      No  817.1804 12106.135
+## 3      No 1073.5492 31767.139
+## 4      No  529.2506 35704.494
+## 5      No  785.6559 38463.496
+## 6      No  919.5885  7491.559
+## 7      No  825.5133 24905.227
+```
+
+]
+]
+
+---
+class: center, middle
+# Une première application avec la library `MASS`
+
+---
 ## Les packages
 
 
 ```r
-# Packages pour 1ère application 
-library(readr)
-library(discrim)
+library(MASS)
 library(ggplot2)
 library(rsample)
-# Packages à rajouter pour seconde application 
-library(recipes)
-library(parsnip)
-library(workflows)
-library(yardstick)
-library(tune)
 ```
 
 ---
-# Charger la base de données
 
-.panelset[
-.panel[.panel-name[Code]
-
-
-```r
-df&lt;-read_csv("Heart.csv")
-head(df,5)
-```
-]
-
-.panel[.panel-name[Résultats]
-
-
-```
-## # A tibble: 5 x 15
-##      X1   Age   Sex ChestPain RestBP  Chol   Fbs RestECG MaxHR ExAng Oldpeak
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
-## 1     1    63     1 typical      145   233     1       2   150     0     2.3
-## 2     2    67     1 asymptom~    160   286     0       2   108     1     1.5
-## 3     3    67     1 asymptom~    120   229     0       2   129     1     2.6
-## 4     4    37     1 nonangin~    130   250     0       0   187     0     3.5
-## 5     5    41     0 nontypic~    130   204     0       2   172     0     1.4
-## # ... with 4 more variables: Slope &lt;dbl&gt;, Ca &lt;dbl&gt;, Thal &lt;chr&gt;, AHD &lt;chr&gt;
-```
-
-]
-]
-
----
-# Transformer les colonnes `chr` en `fct`
-
-.panelset[
-.panel[.panel-name[Code]
-
-
-```r
-df$ChestPain&lt;-as.factor(df$ChestPain)
-df$Thal&lt;-as.factor(df$Thal)
-df$AHD&lt;-as.factor(df$AHD)
-df&lt;-df[,-1]
-```
-]
-
-.panel[.panel-name[Résultats]
-
-
-```
-## # A tibble: 5 x 14
-##     Age   Sex ChestPain RestBP  Chol   Fbs RestECG MaxHR ExAng Oldpeak Slope
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
-## 1    63     1 typical      145   233     1       2   150     0     2.3     3
-## 2    67     1 asymptom~    160   286     0       2   108     1     1.5     2
-## 3    67     1 asymptom~    120   229     0       2   129     1     2.6     2
-## 4    37     1 nonangin~    130   250     0       0   187     0     3.5     3
-## 5    41     0 nontypic~    130   204     0       2   172     0     1.4     1
-## # ... with 3 more variables: Ca &lt;dbl&gt;, Thal &lt;fct&gt;, AHD &lt;fct&gt;
-```
-
-]
-]
----
-class: center, middle
-# Une première application basique
-
-
----
-# Séparer les données **train/test**
-
+## Séparer les données **train/test**
 .panelset[
 .panel[.panel-name[Code]
 
 
 ```r
 set.seed(123)
-# Séparer les données en données d'entrainement (75%) et de test (25%)
-AHD_split&lt;-initial_split(df, prop = 3/4)
-AHD_split
-# extraire les données d'entrainement/de test
-AHD_train&lt;-training(AHD_split)
-AHD_test&lt;-testing(AHD_split)
+data_split &lt;- df %&gt;% initial_split(prop = 2/3)
+#création des sous-échantillons apprentissage-test
+test_data &lt;- data_split %&gt;% testing()
+train_data &lt;- data_split %&gt;% training()
+```
+
+
+```r
+head(train_data)
+table(train_data$default)
+```
+
+
+```r
+head(test_data)
+table(test_data$default)
 ```
 ]
 
-.panel[.panel-name[Résultats]
+.panel[.panel-name[Résultats - Train]
 
 
 ```
-## &lt;Analysis/Assess/Total&gt;
-## &lt;228/75/303&gt;
+##   default   balance    income
+## 2      No  817.1804 12106.135
+## 3      No 1073.5492 31767.139
+## 4      No  529.2506 35704.494
+## 6      No  919.5885  7491.559
+## 7      No  825.5133 24905.227
+## 8      No  808.6675 17600.451
+```
+
+
+
+```
+## 
+##   No  Yes 
+## 6452  215
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+
+```
+##    default   balance   income
+## 1       No  729.5265 44361.63
+## 5       No  785.6559 38463.50
+## 18      No  527.5402 17636.54
+## 20      No 1095.0727 26464.63
+## 21      No  228.9525 50500.18
+## 25      No  773.2117 34353.31
+```
+
+
+
+```
+## 
+##   No  Yes 
+## 3215  118
 ```
 
 ]
 ]
 
 ---
-# Séparer les données **train/test**
+## Apprentissage du modèle
 
 .panelset[
 .panel[.panel-name[Code]
 
 
 ```r
-# Création du modèle sur données d'entrainement
-lda_mod &lt;-
-  discrim_linear(penalty = .1) %&gt;%
-  set_engine("mda") %&gt;%
-  fit(AHD ~ ., data = AHD_train)
-# Affichage de la matrice de confusion
-lda_mod$fit$confusion
+lda.fit &lt;- lda(default~., data = train_data)
 ```
 ]
 
@@ -198,76 +197,168 @@ lda_mod$fit$confusion
 
 
 ```
-##          true
-## predicted  No Yes
-##       No  105  20
-##       Yes  11  86
+## Call:
+## lda(default ~ ., data = train_data)
+## 
+## Prior probabilities of groups:
+##         No        Yes 
+## 0.96775161 0.03224839 
+## 
+## Group means:
+##       balance   income
+## No   802.7554 33475.28
+## Yes 1733.0563 32446.00
+## 
+## Coefficients of linear discriminants:
+##                  LD1
+## balance 2.225353e-03
+## income  9.119769e-06
 ```
 
 ]
 ]
+
 ---
-# Séparer les données **train/test**
+## Prédiction
 
 .panelset[
 .panel[.panel-name[Code]
 
-```r
-
-AHD_test$lda &lt;-
-  predict(lda_mod, AHD_test, type = "prob")
-
-
-ggplot(AHD_test, aes(x = Age, y = MaxHR)) +
-  geom_point(aes(col = AHD), alpha = .5) +
-  geom_contour(data = AHD_test, aes(z = lda$.pred_Yes), col = "black", breaks = .5) +
-  theme_bw() +
-  theme(legend.position = "top")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="504" /&gt;
 
 ```r
-
-
-model &lt;- discrim_linear(penalty = 0.1)
-model
-update(model, penalty = 1)
+res.lda &lt;- predict(lda.fit, newdata =test_data)
+Matrice_confusion &lt;- table(res.lda$class, test_data$default)
 ```
 ]
 
 .panel[.panel-name[Résultats]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="80%" /&gt;
 
+```
+##      
+##         No  Yes
+##   No  3210   89
+##   Yes    5   29
+```
 ]
 ]
+
+
 ---
 class: center, middle
 # Une seconde application plus complète
 
-Utilisation des recettes du package `recipes` et du workflow du package `worflows` ([tidyverse](https://www.tidymodels.org/))
-
+Utilisation des recettes du package `recipes` et du workflow du package `workflows` ([tidyverse](https://www.tidymodels.org/))
 
 ---
+## Les packages
+
 
 ```r
-# create CV object from training data
-AHD_cv&lt;-vfold_cv(AHD_train) 
+library(recipes)
+library(parsnip)
+library(workflows)
+library(yardstick)
+library(tune)
+library(rsample)
+library(discrim)
+library(mda)
 ```
 
 ---
-# Construire la recette
 
+## Séparer les données **train/test**
 .panelset[
 .panel[.panel-name[Code]
 
 
 ```r
-AHD_recette&lt;-recipe(AHD ~ .,data = df) %&gt;% #le modèle
-step_normalize(all_numeric()) %&gt;% #Pré traitement : Normalisation
-step_knnimpute(all_predictors()) #Pré traitement : Imputer les valeurs manquantes par knn
-AHD_recette
+set.seed(123)
+data_split &lt;- df %&gt;% initial_split(prop = 2/3)
+#création des sous-échantillons apprentissage-test
+test_data &lt;- data_split %&gt;% testing()
+train_data &lt;- data_split %&gt;% training()
+```
+
+
+```r
+head(train_data)
+table(train_data$default)
+```
+
+
+```r
+head(test_data)
+table(test_data$default)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+
+```
+##   default   balance    income
+## 2      No  817.1804 12106.135
+## 3      No 1073.5492 31767.139
+## 4      No  529.2506 35704.494
+## 6      No  919.5885  7491.559
+## 7      No  825.5133 24905.227
+## 8      No  808.6675 17600.451
+```
+
+
+
+```
+## 
+##   No  Yes 
+## 6452  215
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+
+```
+##    default   balance   income
+## 1       No  729.5265 44361.63
+## 5       No  785.6559 38463.50
+## 18      No  527.5402 17636.54
+## 20      No 1095.0727 26464.63
+## 21      No  228.9525 50500.18
+## 25      No  773.2117 34353.31
+```
+
+
+
+```
+## 
+##   No  Yes 
+## 3215  118
+```
+
+]
+]
+---
+## Données d'entrainement en cross validation
+
+```r
+# create CV object from training data
+train_data_cv&lt;-vfold_cv(train_data) 
+```
+
+---
+## Construire la recette
+
+.panelset[
+.panel[.panel-name[Code]
+
+Choix des variables et pré traitement (normalisation des variables et imputation des valeurs manquantes par knn)
+
+
+```r
+default_recette&lt;-recipe(default ~ .,data = df) %&gt;% 
+  step_normalize(all_numeric()) %&gt;%
+  step_knnimpute(all_predictors()) 
 ```
 ]
 
@@ -281,7 +372,7 @@ AHD_recette
 ## 
 ##       role #variables
 ##    outcome          1
-##  predictor         13
+##  predictor          2
 ## 
 ## Operations:
 ## 
@@ -292,7 +383,7 @@ AHD_recette
 ]
 ]
 ---
-# Créer le modèle
+## Créer le modèle
 
 .panelset[
 .panel[.panel-name[Code]
@@ -322,19 +413,16 @@ LDA_model&lt;-
 ]
 ]
 ---
-# Workflow
+## Initialisation du workflow
 
 .panelset[
 .panel[.panel-name[Code]
 
 
 ```r
-# set the workflow
-LDA_workflow&lt;- workflow() %&gt;%
-# add the recipe
-add_recipe(AHD_recette) %&gt;%
-# add the model
-add_model(LDA_model)
+LDA_workflow&lt;- workflow() %&gt;% 
+  add_recipe(default_recette) %&gt;%  # ajout de la recette
+  add_model(LDA_model) # ajout du modèle
 ```
 ]
 
@@ -342,17 +430,17 @@ add_model(LDA_model)
 
 
 ```
-## == Workflow ====================================================================
+## ══ Workflow ════════════════════════════════════════════════════════════════════
 ## Preprocessor: Recipe
 ## Model: discrim_linear()
 ## 
-## -- Preprocessor ----------------------------------------------------------------
+## ── Preprocessor ────────────────────────────────────────────────────────────────
 ## 2 Recipe Steps
 ## 
-## * step_normalize()
-## * step_knnimpute()
+## ● step_normalize()
+## ● step_knnimpute()
 ## 
-## -- Model -----------------------------------------------------------------------
+## ── Model ───────────────────────────────────────────────────────────────────────
 ## Linear Discriminant Model Specification (classification)
 ## 
 ## Main Arguments:
@@ -365,7 +453,7 @@ add_model(LDA_model)
 ]
 
 ---
-# Appliquer sur l'échantillon **train**
+## Appliquer sur l'échantillon **train_cv**
 
 .panelset[
 .panel[.panel-name[Code]
@@ -375,13 +463,13 @@ add_model(LDA_model)
 LDA_grid&lt;-expand.grid(penalty = c(1,2,3))
 
 LDA_tune_results&lt;- LDA_workflow %&gt;%
-tune_grid(resamples = AHD_cv, #CV object
-grid=LDA_grid, # grid of values to try
-metrics = metric_set(accuracy, roc_auc) # metrics we care about
+  tune_grid(resamples = train_data_cv,
+            grid=LDA_grid,
+            metrics = metric_set(accuracy, roc_auc) 
 )
 
 LDA_tune_results %&gt;%
-collect_metrics()
+  collect_metrics()
 ```
 ]
 
@@ -392,12 +480,12 @@ collect_metrics()
 ## # A tibble: 6 x 7
 ##   penalty .metric  .estimator  mean     n std_err .config             
 ##     &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-## 1       1 accuracy binary     0.834    10  0.0179 Preprocessor1_Model1
-## 2       1 roc_auc  binary     0.896    10  0.0140 Preprocessor1_Model1
-## 3       2 accuracy binary     0.838    10  0.0193 Preprocessor1_Model2
-## 4       2 roc_auc  binary     0.892    10  0.0154 Preprocessor1_Model2
-## 5       3 accuracy binary     0.825    10  0.0265 Preprocessor1_Model3
-## 6       3 roc_auc  binary     0.892    10  0.0147 Preprocessor1_Model3
+## 1       1 accuracy binary     0.973    10 0.00185 Preprocessor1_Model1
+## 2       1 roc_auc  binary     0.942    10 0.00411 Preprocessor1_Model1
+## 3       2 accuracy binary     0.973    10 0.00187 Preprocessor1_Model2
+## 4       2 roc_auc  binary     0.942    10 0.00411 Preprocessor1_Model2
+## 5       3 accuracy binary     0.973    10 0.00187 Preprocessor1_Model3
+## 6       3 roc_auc  binary     0.942    10 0.00411 Preprocessor1_Model3
 ```
 
 ]
@@ -405,7 +493,7 @@ collect_metrics()
 
 
 ---
-# Appliquer sur l'échantillon **train**
+## Appliquer sur l'échantillon **train**
 
 .panelset[
 .panel[.panel-name[Code]
@@ -413,14 +501,20 @@ collect_metrics()
 
 ```r
 param_final &lt;- LDA_tune_results %&gt;%
-select_best(metric = "accuracy") 
-param_final
+  select_best(metric = "accuracy") 
+
 LDA_workflow &lt;- LDA_workflow %&gt;%
-finalize_workflow(param_final)
+  finalize_workflow(param_final)
+```
+
+
+```r
+lda_fit &lt;- LDA_workflow %&gt;%
+  last_fit(data_split)
 ```
 ]
 
-.panel[.panel-name[Résultats]
+.panel[.panel-name[Résultats - Paramètre final]
 
 
 ```
@@ -428,6 +522,141 @@ finalize_workflow(param_final)
 ##   penalty .config             
 ##     &lt;dbl&gt; &lt;chr&gt;               
 ## 1       2 Preprocessor1_Model2
+```
+
+]
+]
+
+---
+## Appliquer sur l'échantillon **test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+
+```r
+lda_fit &lt;- LDA_workflow %&gt;%
+  last_fit(data_split)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## Call:
+## lda(default ~ ., data = train_data)
+## 
+## Prior probabilities of groups:
+##         No        Yes 
+## 0.96775161 0.03224839 
+## 
+## Group means:
+##       balance   income
+## No   802.7554 33475.28
+## Yes 1733.0563 32446.00
+## 
+## Coefficients of linear discriminants:
+##                  LD1
+## balance 2.225353e-03
+## income  9.119769e-06
+```
+
+]
+]
+
+---
+## Extraction des informations utiles
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+test_performance &lt;- lda_fit %&gt;% collect_metrics()
+test_predictions &lt;- lda_fit %&gt;% collect_predictions()
+```
+]
+
+.panel[.panel-name[Résultats performance]
+
+
+```
+## # A tibble: 2 x 4
+##   .metric  .estimator .estimate .config             
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
+## 1 accuracy binary         0.972 Preprocessor1_Model1
+## 2 roc_auc  binary         0.962 Preprocessor1_Model1
+```
+
+]
+.panel[.panel-name[Résultats performance]
+
+
+```
+## # A tibble: 3,333 x 7
+##    id             .pred_No .pred_Yes  .row .pred_class default .config          
+##    &lt;chr&gt;             &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt; &lt;fct&gt;       &lt;fct&gt;   &lt;chr&gt;            
+##  1 train/test sp…    0.997  0.00348      1 No          No      Preprocessor1_Mo…
+##  2 train/test sp…    0.996  0.00403      5 No          No      Preprocessor1_Mo…
+##  3 train/test sp…    0.999  0.000837    18 No          No      Preprocessor1_Mo…
+##  4 train/test sp…    0.987  0.0132      20 No          No      Preprocessor1_Mo…
+##  5 train/test sp…    1.00   0.000395    21 No          No      Preprocessor1_Mo…
+##  6 train/test sp…    0.996  0.00353     25 No          No      Preprocessor1_Mo…
+##  7 train/test sp…    0.998  0.00222     27 No          No      Preprocessor1_Mo…
+##  8 train/test sp…    0.988  0.0122      30 No          No      Preprocessor1_Mo…
+##  9 train/test sp…    0.999  0.00144     31 No          No      Preprocessor1_Mo…
+## 10 train/test sp…    0.999  0.000564    32 No          No      Preprocessor1_Mo…
+## # … with 3,323 more rows
+```
+
+]
+]
+
+---
+## Ajustement du modèle final et utilisation
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+final_model &lt;- LDA_workflow %&gt;% fit(df)
+```
+
+
+```r
+new_ind &lt;- tribble(~balance, ~income, 286.38, 44595.868)
+```
+
+
+
+```r
+predict(final_model, new_data = new_ind)
+```
+]
+
+.panel[.panel-name[Résultat - nouvel individu]
+
+
+```
+## # A tibble: 1 x 2
+##   balance income
+##     &lt;dbl&gt;  &lt;dbl&gt;
+## 1    286. 44596.
+```
+
+]
+
+.panel[.panel-name[Résultat - prédiction]
+
+
+```
+## # A tibble: 1 x 1
+##   .pred_class
+##   &lt;fct&gt;      
+## 1 No
 ```
 
 ]

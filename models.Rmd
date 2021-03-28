@@ -1,7 +1,5 @@
 ---
 title: "Le cours"
-description: |
-  Une introduction aux méthodes statistiques nécessaires à la classification
 site: distill::distill_website
 ---
 
@@ -11,30 +9,34 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ### [Les notions à connaitre](Notions.html)
 
+Comment calcule-t-on une distance entre deux points ? N'existe-t-il qu'une seule façon de calculer une distance ? Qu'est que l'inertie ? Vous trouverez dans ce chapitre des notions nécessaires à la bonne compréhension des techniques de classement présentées sur ce site. 
+
 ### [Les mesures de qualité d'un modèle](qualite.html)
 
-Comment mesure-t-on la qualité d'un modèle ? Ce chapitre vous introduira les problématiques de base à prendre en compte lors de la réalisation et de l'utilisation d'une technique de classement ou de prédiction, ainsi que des informations sur des mesures de la qualité des modèles. 
+Comment mesure-t-on la qualité d'un modèle ? Ce chapitre vous introduira les problématiques de base à prendre en compte lors de la réalisation et de l'utilisation d'une technique de classement ou de prédiction, ainsi que des informations sur des mesures de la qualité des modèles.
 
 ### [L'analyse factorielle discriminante](LDA.html)
 
 L'analyse factorielle discriminante est l'une des techniques de classification les plus communes, particulièrement quand on a plusieurs classes. De par sa simplicité, elle est souvent utilisée comme alternative à la régression logistique. Quand les classes sont très distinctes ou quand $n$ est petit et les prédicteurs $X$ sont approximativement normaux, elle est plus stable que la régression logistique.
 
-L'analyse factorielle discriminante nous permet aussi de représenter les liaisons entre $Y$ et les $X$ (analyse discriminante descriptive), ou bien de trouver les règles de prédiction des modalités de $Y$ à partir des valeurs des $X$ (analyse discriminante predictive).
+L'analyse factorielle discriminante nous permet aussi de représenter les liaisons entre $Y$ et les $X$ (analyse discriminante descriptive), ou bien de trouver les règles de prédiction des modalités de $Y$ à partir des valeurs des $X$ (analyse discriminante prédictive).
 
 L'analyse discriminante offre plusieurs approches à cette double problématique.
 
-|                           | **Méthode descriptive** (représenter les groupes) | **Méthode prédictive** (prédire l'appartenance à un groupe) |
-|---------------------------|---------------------------------------------------|-------------------------------------------------------------|
-| **Approche géométrique**  | OUI                                               | OUI                                                         |
-| **Approche probabiliste** | NON                                               | OUI                                                         |
++-----------------------------+-----------------------------------------------------+---------------------------------------------------------------+
+|                             | ##### Méthode descriptive (représenter les groupes) | ##### Méthode prédictive (prédire l'appartenance à un groupe) |
++-----------------------------+-----------------------------------------------------+---------------------------------------------------------------+
+| ##### Approche géométrique  | OUI                                                 | OUI                                                           |
++-----------------------------+-----------------------------------------------------+---------------------------------------------------------------+
+| ##### Approche probabiliste | NON                                                 | OUI                                                           |
++-----------------------------+-----------------------------------------------------+---------------------------------------------------------------+
 
 ### [L'analyse discriminante quadratique](QDA.html)
 
-|                           | **Méthode descriptive** (représenter les groupes) | **Méthode prédictive** (prédire l'appartenance à un groupe) |
-|---------------------------|---------------------------------------------------|-------------------------------------------------------------|
-| **Approche géométrique**  | NON                                               | NON                                                         |
-| **Approche probabiliste** | NON                                               | OUI                                                         |
+L'analyse discriminante quadratique propose une approche alternative à l'analyse discriminante linéaire. Que choisir entre la LDA et la QDA ? 
+
+La QDA est beaucoup plus flexible que la LDA et à une variance beaucoup plus petite. Seulement, le biais est beaucoup plus élevé. Si on dispose de beaucoup de données, on privilégiera la QDA. 
 
 ### [Les K plus proches voisins ou KNN](KNN.html)
 
-L’algorithme des K plus proches voisins ou K-nearest neighbors (kNN) est un algorithme de Machine Learning qui appartient à la classe des algorithmes d’apprentissage supervisé simple et facile à mettre en œuvre qui peut être utilisé pour résoudre les problèmes de classification et de régression.
+L'algorithme des K plus proches voisins ou K-nearest neighbors (kNN) est un algorithme de Machine Learning qui appartient à la classe des algorithmes d'apprentissage supervisé. Simple et facile à mettre en œuvre, il peut être utilisé pour résoudre les problèmes de classification et de régression.

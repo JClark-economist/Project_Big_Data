@@ -1,13 +1,13 @@
 ---
-title: "Techniques de classement et de prédiction"
+title: "Statistique Décisionnelle, Classification"
 author:
 - name: Lilian Boissé | Jean Clark
-  url: https://alison.rbind.io
+  url: hhttps://big-data-techniques-de-classement.netlify.app/
   affiliation: Mécen
   affiliation_url: http://mecen-univ-tours.fr/
 date: "`r Sys.Date()`"
 description: |
-   Ou comment réaliser des prédictions ?
+   Une ressource pour les étudiants du Mécen 
 site: distill::distill_website
 ---
 
@@ -15,12 +15,30 @@ site: distill::distill_website
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+```{r meta, echo=FALSE}
+library(metathis)
+meta() %>%
+  meta_general(
+    description = "Statistique Décisionnelle : Classification",
+    generator = "xaringan and remark.js"
+  ) %>% 
+  meta_name("github-repo" = "/Projet_Big_Data") %>% 
+  meta_social(
+    title = "Techniques de classement",
+    url = "http://mecen-univ-tours.fr/",
+    og_type = "website",
+    twitter_card_type = "summary_large_image"
+  )
+```
+
 
 ## Introduction 
 
-L'objectif de ce site est de vous introduire certaines techniques de classement utilisés quotidiennement par les acteurs du monde de la Data Science et de la statistique. Vous montrer de façon intuitive le fonctionnement des modèles, vous donner des exemples d'application et si possible, prendre du plaisir en apprenant, tels sont les objectifs de ce site. 
+L'objectif de ce site est de vous introduire certaines techniques de classement utilisés quotidiennement par les acteurs du monde de la Data Science et de la statistique, ainsi que la méthodologie à suivre. Nous vous montrerons de façon intuitive le fonctionnement des modèles et des exemples d'applications. 
 
-Nous nous concentrerons sur les modèles les plus communs de classification supervisée, il convient donc de débuter par vous introduire ce qu'est la classification, puis les modèles que nous présenterons.
+<aside>Des exemples d'applications R seront donnés. Nous vous recommandons vivement d'installer [R](https://www.r-project.org/), ainsi que [RStudio](https://rstudio.com/products/rstudio/) afin de pouvoir tester le code vous même. </aside>
+
+Nous nous concentrerons sur les modèles les plus communs de classification supervisée, il convient donc de débuter par vous introduire ce qu'est la classification, puis les techniques de classement que nous présenterons.
 
 Dans la présentation suivante, vous découvrirez une introduction à la classification.
 
@@ -35,27 +53,19 @@ xaringanExtra::embed_xaringan(url = "slides_homepage/index.html", ratio = "16:9"
 
 ## Prérequis pour la suite 
 
-Nous allons introduire des concepts statistiques qui recquièrent des connaissances de bases, telles que : 
+Nous allons introduire des concepts statistiques qui requièrent des connaissances de bases, telles que : 
 
 + Les notions de moyennes, variances, écarts-type ;
 
 + Des notions de mathématiques dans l'espace ; 
 
-+ Si vous voulez allez plus loin, nous vous conseillons le livre [ISLR (An Introduction to Statistical Learning with Applications in R)](https://link.springer.com/book/10.1007%2F978-1-4614-7138-7) sur lequel nous nous sommes basés.
++ Si vous voulez allez plus loin, nous vous conseillons les livres [ISLR (An Introduction to Statistical Learning with Applications in R)](https://link.springer.com/book/10.1007%2F978-1-4614-7138-7) et [Data Mining et Statistique décisionnelle : L'intelligence des données, de Stéphane Tufféry](https://www.amazon.fr/Data-mining-statistique-d%C3%A9cisionnelle-%C3%A9dition/dp/2710810174) sur lesquels nous nous sommes basés.
 
-Vous trouverez sur ce site des ressources sur les [notions de distances, moyennes, variances et covariances](Notions.html). 
-
-
-
-
-<aside>Des exemples d'applications R seront donnés. Nous vous recommendons vivement d'installer [R](https://www.r-project.org/), ainsi que [RStudio](https://rstudio.com/products/rstudio/) afin de pouvoir tester le code vous même. </aside>
-
+Vous trouverez sur ce site des ressources sur les [notions de distances et d'inerties](Notions.html). 
 
 ## Les modèles présentés
 
-Chaque modèle qui sera présenté plus en détails dans l'onglet [COURS](models.html).
-
-+ La régression logistique
+Chaque modèle sera présenté plus en détails dans l'onglet [COURS](models.html).
 
 + [L'analyse linéaire discriminante](LDA.html)
 

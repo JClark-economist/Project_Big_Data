@@ -85,29 +85,29 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </style>
 
   <!--radix_placeholder_meta_tags-->
-  <title>BIG DATA: Techniques mathématiques</title>
+  <title>BIG DATA: Notions mathématiques</title>
 
-  <meta property="description" itemprop="description" content="Un rappel sur les techniques mathématiques nécessaires à la compréhension"/>
+  <meta property="description" itemprop="description" content="Un rappel sur les notions mathématiques nécessaires à la compréhension des modèles"/>
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="BIG DATA: Techniques mathématiques"/>
+  <meta property="og:title" content="BIG DATA: Notions mathématiques"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="Un rappel sur les techniques mathématiques nécessaires à la compréhension"/>
+  <meta property="og:description" content="Un rappel sur les notions mathématiques nécessaires à la compréhension des modèles"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="BIG DATA"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="BIG DATA: Techniques mathématiques"/>
-  <meta property="twitter:description" content="Un rappel sur les techniques mathématiques nécessaires à la compréhension"/>
+  <meta property="twitter:title" content="BIG DATA: Notions mathématiques"/>
+  <meta property="twitter:description" content="Un rappel sur les notions mathématiques nécessaires à la compréhension des modèles"/>
 
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","site"]}},"value":[{"type":"character","attributes":{},"value":["Techniques mathématiques"]},{"type":"character","attributes":{},"value":["Un rappel sur les techniques mathématiques nécessaires à la compréhension\n"]},{"type":"character","attributes":{},"value":["distill::distill_website"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","site"]}},"value":[{"type":"character","attributes":{},"value":["Notions mathématiques"]},{"type":"character","attributes":{},"value":["Un rappel sur les notions mathématiques nécessaires à la compréhension des modèles\n"]},{"type":"character","attributes":{},"value":["distill::distill_website"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2255,7 +2255,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Techniques mathématiques","description":"Un rappel sur les techniques mathématiques nécessaires à la compréhension","authors":[]}
+{"title":"Notions mathématiques","description":"Un rappel sur les notions mathématiques nécessaires à la compréhension des modèles","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2283,14 +2283,134 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>Techniques mathématiques</h1>
+<h1>Notions mathématiques</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p><p>Un rappel sur les techniques mathématiques nécessaires à la compréhension</p></p>
+<p><p>Un rappel sur les notions mathématiques nécessaires à la compréhension des modèles</p></p>
 </div>
 
 
 <div class="d-article">
+<div class="d-contents d-contents-float">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#les-notions-dinertie">Les notions d’inertie</a></li>
+<li><a href="#les-notions-de-distance">Les notions de distance</a></li>
+<li><a href="#centre-de-gravité-variances-intra-et-inter-classes">Centre de gravité, variances intra et inter classes</a></li>
+</ul>
+</nav>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
+<h1 id="les-notions-dinertie">Les notions d’inertie</h1>
+<ul>
+<li><strong>Inertie totale</strong></li>
+</ul>
+<p>On appelle inertie totale d’un nuage de points la somme pondérée des carrés des distances de ces points au centre de gravité du nuage. Si <span class="math inline">\(z\)</span> désigne le centre de gravité du nuage <span class="math inline">\(X = (x_i, x_2, ...,x_n)\)</span>, l’inertie totale du nuage peut s’écrire :</p>
+<p><span class="math display">\[
+I_X(z)=\sum_{i=1}^np_id(x_i,z)^2
+\]</span></p>
+<p>Notons que le centre de gravité est précisément le point <span class="math inline">\(z\)</span> pour lequel cette somme pondérée est minimale. L’inertie mesure la dispersion du nuage. Le nuage peut cependant être composé de plusieurs classes.</p>
+<ul>
+<li><strong>Inertie intraclasse</strong></li>
+</ul>
+<p>Lorsque le nuage de points est composé de plusieurs classes, il est possible de calculer l’inertie intraclasse. Cette inertie correspond à la somme des inerties de chaque classe du nuage de points. Si le nuage de points <span class="math inline">\(X\)</span> est composé de <span class="math inline">\(k\)</span> classes <span class="math inline">\((X_1, X_2,...,X_k)\)</span> de centre de gravité respectif <span class="math inline">\((z_1, z_2,...,z_k)\)</span>, l’inertie intraclasse s’écrit :</p>
+<p><span class="math display">\[
+I_{intraclasse} = \sum_{k=1}^nI_{X_k}(z_k).
+\]</span></p>
+<ul>
+<li><strong>Inertie interclasse</strong></li>
+</ul>
+<p>L’inertie interclasse correspond à la dispersion des différentes classes par rapport au centre de gravité du nuage de points. On peut donc l’écrire :</p>
+<p><span class="math display">\[
+I_{interclasse} = \sum_{k=1}^nP_kd(z_k,z)^2.
+\]</span></p>
+<p>L’inertie totale d’un nuage de points composé de différentes classes disjointes deux à deux est la somme de son inertie intraclasse et de son inertie interclasse :</p>
+<p><span class="math display">\[
+I_{totale} = I_{intraclasse} + I_{interclasse}.
+\]</span></p>
+<p>Par exemple, pour un nuage de 8 points répartis en deux classes, on peut représenter ces inerties graphiquement ainsi :</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="Notions_files/figure-html5/inertie%20ggplot-1.png" width="768" /></p>
+</div>
+<h1 id="les-notions-de-distance">Les notions de distance</h1>
+<p>En analyse de données, il est important de définir des <em>métriques</em> ou des <em>fonctions de distance</em> pour mesurer les similarités. Avant de commencer à discuter des métriques de distance, définissons quelques règles de base pour une fonction de distance valide. Les conditions qu’une fonction de distance doit satisfaire sont:</p>
+<ol type="1">
+<li><p><strong>Non-négativité :</strong> <span class="math inline">\(d(x,y)\geq 0\)</span>. La distance doit toujours être supérieure à <span class="math inline">\(0\)</span>.</p></li>
+<li><p><strong>Identité :</strong> <span class="math inline">\(d(x,y)=0\)</span>, si et seulement si, <span class="math inline">\(x=y\)</span>.</p></li>
+<li><p><strong>Symétrie :</strong> <span class="math inline">\(d(x,y)=d(y,x)\)</span>. La distance entre le point <span class="math inline">\(x\)</span> et <span class="math inline">\(y\)</span> est la même que la distance entre le point <span class="math inline">\(y\)</span> et <span class="math inline">\(x\)</span>.</p></li>
+<li><p><strong>Inégalité triangulaire :</strong> <span class="math inline">\(d(x,y)+d(y,z)\geq d(x,z)\)</span>. Un troisième point ne peut jamais raccourcir la distance entre les deux autres points.</p></li>
+</ol>
+<p>Il existe différentes méthodes pour calculer une distance. La liste suivante en répertorie quelques unes d’entre elles.</p>
+<ul>
+<li><strong>La distance euclidienne :</strong></li>
+</ul>
+<p><span class="math display">\[
+d_{euclienne}(x,y) = \sqrt{\sum_{i}(x_i - y_i)^2},
+\]</span> où <span class="math inline">\(x = x_1, x_2,\cdots, x_m\)</span> et <span class="math inline">\(y = y_1, y_2, \cdots, y_m\)</span> représentent les <span class="math inline">\(m\)</span> valeurs des variables de deux enregistrements.</p>
+<p>La <em>distance euclidienne</em> entre deux points est la longueur d’un segment de ligne entre les deux points. Cette distance est la plus courante, et représente la manière habituelle de penser une distance dans la vie courante. De manière graphique, on peut la représenter ainsi:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="Notions_files/figure-html5/eucli-1.png" width="624" /></p>
+</div>
+<ul>
+<li><strong>La distance de Manhattan :</strong></li>
+</ul>
+<p><span class="math display">\[
+d_{Manhattan}(x,y)=\sum_i |x_i-y_i|.
+\]</span></p>
+<p>La <em>distance de Manhattan</em> est la distance entre deux points parcourue par un taxi lorsqu’il se déplace dans une ville où les rues sont agencées selon un réseau ou quadrillage. De manière graphique, on peut la représenter ainsi:</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="Notions_files/figure-html5/dist%20manha-1.png" width="624" /></p>
+</div>
+<ul>
+<li><strong>La distance de Minkowski :</strong></li>
+</ul>
+<p><span class="math display">\[
+d_{Minkowski}(x,y)=\Big(\sum_i |x_i-y_i|^q\Big)^\frac{1}{q},
+\]</span></p>
+<p>La <em>distance de Minkowski</em> est une métrique dans un espace vectoriel normé qui peut être considérée comme une généralisation de la <em>distance euclidienne</em> et de la <em>distance de Manhattan</em>. En effet, lorsque <span class="math inline">\(p=2\)</span>, on retrouve la formule de la <em>distance euclidienne</em> et lorsque que <span class="math inline">\(p=1\)</span>, on retrouve la formule de la <em>distance de Manhattan</em>.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="Notions_files/figure-html5/minko-1.png" width="624" /></p>
+</div>
+<ul>
+<li><strong>La distance de Chebyshev :</strong></li>
+</ul>
+<p><span class="math display">\[
+d_{Chebyshev}(x,y)= \max_{i \in [[0,n]]} (|x_i - y_i|)
+\]</span></p>
+<p>La <em>distance de Chebyshev</em> est la distance entre deux points donnée par la différence maximale entre leurs coordonnées sur une dimension. Le calcul d’une <em>distance de Chebychev</em> ne fait intervenir que des soustractions, des valeurs absolues (donc des changements de signe) et des comparaisons (recherche de la valeur maximale). Elle est donc moins sujette aux erreurs numériques qu’une distance quadratique, qui elle, calcule des sommes de carrés. De plus, elle sera calculée plus rapidement.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="Notions_files/figure-html5/cherby-1.png" width="624" /></p>
+</div>
+<h1 id="centre-de-gravité-variances-intra-et-inter-classes">Centre de gravité, variances intra et inter classes</h1>
+<p>On considère <span class="math inline">\(n\)</span> individus <span class="math inline">\(x_i\)</span> qui constituent un nuage <span class="math inline">\(E\)</span> de <span class="math inline">\(\mathbb{R}^p\)</span> dont les coordonnées sont les valeurs prises par les prédicteurs. La variable à expliquer partage ce nuage en <span class="math inline">\(k\)</span> sous-nuages, de centres de gravité respectifs <span class="math inline">\(\bar x^1,\cdots,\bar{x}^k\)</span> et de matrices de variances-covariance <span class="math inline">\(V_1, V_2,\cdots , V_k\)</span>. On note <span class="math inline">\(\bar x\)</span> le centre de gravité et <span class="math inline">\(V\)</span> la matrice de variance de <span class="math inline">\(E\)</span> tout entier.</p>
+<p>En supposant que les individus ont le même poids, on a les relations suivantes :</p>
+<ul>
+<li><strong>Centre de gravité :</strong></li>
+</ul>
+<p><span class="math display">\[
+\bar x=\frac{1}{n}\sum^k_{i=1}n_j\bar x^j,
+\]</span></p>
+<ul>
+<li><strong>Matrices de variances-covariances :</strong></li>
+</ul>
+<p><span class="math display">\[
+V_j=\frac{1}{n}\sum^n_{i\in I_j}(x_i-\bar x^j)(x_i-\bar x^j)^t,
+\]</span></p>
+<ul>
+<li><strong>Matrice de variances interclasse :</strong></li>
+</ul>
+<p><span class="math display">\[
+B=\frac{1}{n}\sum^n_{j=1}n_j(\bar x^j-\bar x)(\bar x^j-\bar x)^t,
+\]</span></p>
+<ul>
+<li><strong>Matrice de variances intraclasse :</strong></li>
+</ul>
+<p><span class="math display">\[
+W=\frac{1}{n}\sum^n_{i=1}n_jV_j.
+\]</span></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
@@ -2299,6 +2419,15 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="d-appendix">
 </div>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 
 <!--radix_placeholder_site_after_body-->
 <!--/radix_placeholder_site_after_body-->

@@ -155,12 +155,5 @@ On utilise des techniques de **classification**, telles que la régression logis
 
 3. Avec des données sur des séquences ADN pour un nombre de patients avec ou sans une certaine maladie, un biologiste pourrait déterminer quelles mutations génétiques causent les maladies et celles qui ne les causent pas.
 
----
-
-class: left,middle
-
-## Pour aller plus loin
-
-### Pourquoi la régression linéaire n'est pas adaptée ?
 
 

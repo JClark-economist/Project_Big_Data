@@ -1,11 +1,13 @@
 ---
 title: "Analyse factorielle discriminante"
 description: |
-  Une introduction aux méthodes statistiques nécessaires à la classification
+  Une introduction aux analyses discriminantes
 site: distill::distill_website
 ---
 
 ## Comprendre
+
+### Analyse factorielle discriminante
 
 L'objectif de la discrimination linéaire, ainsi que celui des autres méthodes de discrimination, consiste à prédire la valeur que prendra une variable qualitative à $k$ catégories à l’aide de $p$ prédicteurs, qui seront généralement numériques (il existe des cas où l'on pourra utiliser d'autres variables catégorielles, par exemples les variables catégorielles ordonnées, mais cela posera d'autres problèmes).
 
@@ -19,7 +21,9 @@ Soyons plus explicites et revenons à notre premier exemple. Il faudrait, par ex
 
 + L'analyse discriminante peut d'abord servir dans le cadre descriptif. On va chercher les combinaisons linéaires de variables qui permettent de séparer le mieux possible les catégories $k$ de la variable d'intérêt et de pouvoir donner des représentations graphiques qui montreront au mieux cette séparation.
 
-+ Mais une fois ces combinaisons trouvées, l'analyse discriminante va permettre de décider de la catégorie à affecter à un nouvel individu. On peut dire qu'elle va maintenant servir dans un cadre décisionnel, en prédisant.
++ Une fois ces combinaisons trouvées, l'analyse discriminante va permettre de décider de la catégorie à affecter à un nouvel individu. On peut dire qu'elle va maintenant servir dans un cadre décisionnel, en prédisant.
+
+### Cadre descriptif
 
 On observe le nuage de points de la figure suivante. Les prédicteurs sont les axes des abscisses et des ordonnées $X1$ et $X2$, la variable à expliquer est $Y$ qui correspond aux 3 couleurs déterminant les 3 classes. Dans cet exemple d’école les 3 classes sont clairement séparées. Le but est de construire un axe discriminant qui par projection séparera les 3 classes.
     
@@ -356,6 +360,171 @@ Quels critères va-t-on donc choisir pour séparer les classes au mieux ?
 
 Une réponse courte : nous allons maximiser le rapport inertie inter-classes et inertie totale (notions vues [ici](Notions.html)).
 
+### Cadre décisionnel : Analyse discriminante linéaire
+
+Quand on a un nouveau point que l'on cherche à classer dans un groupe, nous pouvons utiliser l'analyse discriminante linéaire, qui est la méthode de classement issue de l'analyse factorielle discriminante.
+
+#### Pourquoi utiliser l'analyse linéaire discriminante ?
+
++ L'analyse discriminante linéaire possède une solution analytique directe ;
+
++ En conséquence, les calculs sont très rapides ;
+
++ Les modèles produits sont concis ;
+
++ Elle détecte très bien les phénomènes globaux ;
+
++ Elle ne nécessite pas énormément de données ;
+
++ Et d'autres qualités plus poussées que nous n'expliciterons pas ici.
+
+**Attention cependant :**
+
++ Elle ne détecte que les phénomènes linéaires ;
+
++ Elle ne s'applique en principe qu'aux variables explicatives quantitatives (alternative avec la méthode *DISQUAL*) ;
+
++ Elle est sensible aux observations extrèmes.
+
+#### Règle géométrique d'affectation
+
+Une règle très intuitive d'affectation d'un individu, mais qui à ses limites, consiste à affecter le nouvel individu de coordonnées $x$ au groupe $i$ dont l'individu est le plus proche du centre de gravité. 
+
+On utilise la règle de *Mahalanobis-Fisher* ([et la distance de Mahalanobis](https://en.wikipedia.org/wiki/Mahalanobis_distance)), où en utilisant la métrique $W^{-1}$ (voir la section [notions](Notions.html)) on obtient la distance par :
+
+\begin{eqnarray}
+d^2(x;\bar x^i)&=&(x-\bar x^i)^t W^{-1}(x-\bar x^i),\\
+&=&x^tW^{-1}x+(\bar x^i)^t W^{-1}\bar x^i-2x^tW{-1}\bar x^i.
+\end{eqnarray}
+
+La règle consiste à maximiser :
+
+$$
+x^tW^{-1}\bar x ^i-\frac{(x^i)^tW^{-1}\bar x ^i}{2}.
+$$
+
+Exemple :
+
+```{r bonne affection, echo=FALSE,message=FALSE,warning=FALSE}
+set.seed(22123)
+data1 <- data.frame(X= rnorm(60, 2,0.1), Y=rnorm(60, 0.25,0.1), Col = "Gr A")
+data2 <- data.frame(X= rnorm(40, 1,0.1), Y=rnorm(40, 1,0.1), Col = "Gr B")
+point <- data.frame(X= 1.25, Y=0.5, Col = "Nouvelle observation")
+data <- rbind(data1, data2, point)
+
+
+ggplot(data) + geom_point(aes(x=X, y=Y, color = Col)) +
+  geom_segment(aes(x=1.25, y=0.5, xend= 1, yend=1), colour = "#238694") +
+  geom_segment(aes(x=1.25, y=0.5, xend= 2, yend=0.25), colour = "#344a58") +
+  geom_point(aes(x=1, y=1), size = 3, colour = "#238694", pch = 3) +
+  geom_point(aes(x=2, y=0.25), size =3, colour = "#344a58", pch = 3) + 
+  annotate("text", x = 1.32, y = 0.65, label = "dm = 0.75", colour = "#238694")+ 
+  annotate("text", x = 1.43, y = 0.5, label = "dm = 1.9", colour = "#344a58") + theme_classic()+
+  xlab("X1")+ylab("X2")+
+  theme(axis.ticks = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(size=14, face="bold",hjust = 0.5),
+        axis.title.x = element_text(size=12, face="bold"),
+        axis.title.y = element_text(size=12, face="bold"),
+        legend.text = element_text(size = 12)) +
+  stat_ellipse(aes(x=X, y=Y, color = Col))+
+  ggtitle("Un exemple de bonne affectation géométrique")+
+  scale_color_manual("", values = c("#344a58", "#238694", "pink"))
+```
+
+Ici, on voit facilement que le point sera affecté au Groupe A puisqu'il est plus proche du centre de gravité de ce groupe ($0.75<1.9$). Le point sera bien affecté.
+
+#### Problème de la règle géométrique d'affectation
+
+Lorsque les dispersions des groupes sont très différentes entre elles, la règle précédente peut conduire à de mauvaises affectations.
+
+    
+```{r mauvaise affection, echo=FALSE,message=FALSE,warning=FALSE}
+set.seed(22123)
+data1 <- data.frame(X= rnorm(60, 2,0.4), Y=rnorm(60, 0.25,0.1), Col = "Gr A")
+data2 <- data.frame(X= rnorm(40, 1,0.1), Y=rnorm(40, 1,0.1), Col = "Gr B")
+point <- data.frame(X= 1.25, Y=0.5, Col = "Nouvelle observation")
+data <- rbind(data1, data2, point)
+
+
+ggplot(data) + geom_point(aes(x=X, y=Y, color = Col)) +
+  geom_segment(aes(x=1.25, y=0.5, xend= 1, yend=1), colour = "#238694") +
+  geom_segment(aes(x=1.25, y=0.5, xend= 2, yend=0.25), colour = "#344a58") +
+  geom_point(aes(x=1, y=1), size = 3, colour = "#238694", pch = 3) +
+  geom_point(aes(x=2, y=0.25), size =3, colour = "#344a58", pch = 3) + 
+  annotate("text", x = 1.32, y = 0.65, label = "dm = 0.75", colour = "#238694")+ 
+  annotate("text", x = 1.43, y = 0.5, label = "dm = 1.9", colour = "#344a58") + theme_classic()+
+  theme(axis.ticks = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(size=14, face="bold",hjust = 0.5),
+        axis.title.x = element_text(size=12, face="bold"),
+        axis.title.y = element_text(size=12, face="bold"),
+        legend.text = element_text(size = 12)) +
+  stat_ellipse(aes(x=X, y=Y, color = Col))+
+  ggtitle("Un exemple de mauvaise affectation")+
+  scale_color_manual("", values = c("#344a58", "#238694", "pink"))+
+  xlab("X1")+ylab("X2")
+```
+Ici par contre, le point devrait être affecté au groupe B qui est plus étalé (la variance est plus élevée). Seulement, la règle d'affectation montre ici ses limites puisqu'elle se base uniquement sur la distance au centre de gravité et classera le point dans le groupe A, ce qui montre que la règle géométrique d'affectation n'est clairement pas suffisante.
+
+Une solution possible est de prendre des métriques différentes selon les groupes en choisissant des métriques proportionnel à $V^{−1}_i$.
+
+
+#### Point de vue probabiliste
+
+**Modèle d'affectation bayésienne :**
+
+Nous voulons classer une nouvelle observation dans une des $k$ classes. Notons $\pi_c$ la probabilité d'appartenir à la classe $l$. Posons :
+
+$$
+f_c(x)=f^{Y=c}_X(x)\equiv P(X=x|Y=c),
+$$
+
+la densité de la variable $X$ pour une observation $x$ qui provient de la classe $c$. Le [théorème de Bayes](https://fr.wikipedia.org/wiki/Th%C3%A9or%C3%A8me_de_Bayes) nous permet d'écrire que :
+
+$$
+P(Y=c|X=x)=\frac{\pi_cf_c(x)}{\sum^k_{j=1}\pi_jf_j(x)}.
+$$
+
+On affecte alors la nouvelle observation à la classe $c$ pour laquelle $P(Y=c|X=x)=p_c(x)$ est maximum.
+Il faut donc estimer les $\pi_c$ et les $f_c$.
+
+$\pi_c$ est estimé à partir de l’échantillon d’entrainement par la formule :
+
+$$
+\pi_c =\frac{n_c}{n}.
+$$
+L’estimation de $f_c$ est plus délicate.
+
+**Cas gaussien et plus d'un prédicteur $X$ ou $p>1$ :**
+
+Nous allons faire l’hypothèse que les variables $(X_1, X_2,\cdots , X_p)$ possèdent une distribution normale, $X = (X_1, X_2, \cdots , X_p)$ est appelé vecteur gaussien. On écrit que :
+
+$$
+X\sim\mathcal{N}(\mu,\Sigma),
+$$
+
+Où $E(X)=\mu$ est un vecteur contenant les $p$ espérances et $\Sigma$ est la matrice des covariances de $X$. Formellement, la loi de densité d’un vecteur gaussien est définie par :
+
+$$
+f(x)=\frac{1}{(2\pi)^{p/2}|\Sigma|^{1/2}}exp\left[-\frac{1}{2}\text{ }^t(x-\mu)\Sigma^{-1}(x-\mu)\right].
+$$
+
+Dans le cas où $p > 1$, nous supposons que les observations dans la $k^e$ classe sont issues d’un vecteur gaussien de distribution $\mathcal{N} (\mu_k, \Sigma)$ où $\mu_k$ est le vecteur moyen de cette classe, et $\Sigma$ la matrice des variances commune à l’ensemble des classes. On classifie l’observation $x$ dans la classe qui possède la quantité maximum suivante:
+
+$$
+\hat\delta_c(x)=ln(\hat\pi_c)-\frac{1}{2}\text{ }^t\hat\mu_c\Sigma^{-1}\mu_c+\text{ }^tc\Sigma^{-1}\mu_c.
+$$
+
+
+On observe que l’équation $\hat\delta_c(x)$ dépend de $x$ au degré 1. En anglais cette méthode est appelé **linear discriminant analysis (LDA)**.
+
+
+
+
+
 ## Appliquer
 
 ```{r share-again, echo=FALSE}
@@ -367,9 +536,3 @@ xaringanExtra::embed_xaringan(url = "slides_LDA_code/index.html", ratio = "16:9"
 ```
 \
 
-## Aller plus loin
-
-### Règle géométrique d'affectation
-
-
-### Point de vue probabiliste

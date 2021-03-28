@@ -2303,7 +2303,6 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <ul>
 <li><a href="#comprendre">Comprendre</a></li>
 <li><a href="#appliquer">Appliquer</a></li>
-<li><a href="#aller-plus-loin">Aller plus loin</a></li>
 </ul>
 </nav>
 </div>
@@ -2311,8 +2310,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 </div>
 <h2 id="comprendre">Comprendre</h2>
-<p>Les kNN est un algorithme de segmentation (qui peut aussi être utilisée pour faire de la prévision) dans laquelle le classement de chaque individu s’opère en regardant, parmi les individus déja classés, la classe des k individus qui sont ses plus proches voisins en terme de distance. Celle utilisée dans les kNN est généralement la notion de distance euclidienne. Cependant, d’autres distances peuvent être apppliquées tel que la distance de Manhattan ou la distance de Minkowski par exemple. Vous trouverez les explications de ces notions de distance <a href="Notions.html">ici</a>.</p>
-<p>La figure suivante présente un exemple illustratif de l’approche KNN. Dans le panneau de gauche, nous avons tracé un petit ensemble de données d’apprentissage composé de six observations bleues foncés et de six observations bleues claires. Notre objectif est de faire une prédiction pour le point marqué par la croix noire. Supposons que nous choisissions <span class="math inline">\(K = 3\)</span>. KNN identifiera d’abord les trois observations qui sont les plus proches de la croix (On utilise la distance euclidienne ici). Ce voisinage est représenté par le cercle de couleur rose. Il est composé de deux points bleus foncés et d’un point bleu clair, ce qui donne des probabilités estimées de <span class="math inline">\(\frac{2}{3}\)</span> pour la classe bleue foncé et de <span class="math inline">\(\frac{1}{3}\)</span> pour la classe bleue clair. KNN prédit donc que la croix noire appartient à la classe bleue foncé. Dans le panneau de droite de la figure, nous avons appliqué l’approche KNN avec <span class="math inline">\(K = 3\)</span> à toutes les valeurs possibles de <span class="math inline">\(X\)</span> et <span class="math inline">\(Y\)</span>, et nous avons dessiné la limite de décision KNN correspondante.</p>
+<p>Les <em>kNN</em> est un algorithme de segmentation (qui peut aussi être utilisé pour faire de la prévision) dans laquelle le classement de chaque individu s’opère en regardant, parmi les individus déjà classés, la classe des <span class="math inline">\(k\)</span> individus qui sont ses plus proches voisins en terme de distance. La distance utilisée par les <em>kNN</em> est généralement la <em>distance euclidienne</em>. Cependant, d’autres distances peuvent être appliquées telles que la <em>distance de Manhattan</em> ou la <em>distance de Minkowski</em>. Vous trouverez les explications de ces notions <a href="Notions.html">ici</a>.</p>
+<p>La figure suivante présente un exemple illustratif de l’approche <em>kNN</em>. Dans le graphique de gauche, nous avons tracé un petit ensemble de données d’apprentissage composé de six observations bleu foncé et de six observations bleu clair. Notre objectif est de faire une prédiction pour le point marqué par la croix noire. Supposons que nous choisissions <span class="math inline">\(K = 3\)</span>. <em>kNN</em> identifiera d’abord les trois observations qui sont les plus proches de la croix. Ce voisinage est représenté par le cercle de couleur rose. Il est composé de deux points bleu foncé et d’un point bleu clair, ce qui donne des probabilités estimées de <span class="math inline">\(\frac{2}{3}\)</span> pour la classe bleu foncé et de <span class="math inline">\(\frac{1}{3}\)</span> pour la classe bleu clair. <em>kNN</em> prédit donc que la croix noire appartient à la classe bleu foncé. Dans le graphique de droite, nous avons appliqué l’approche <em>kNN</em> avec <span class="math inline">\(K = 3\)</span> à toutes les valeurs possibles de <span class="math inline">\(X_1\)</span> et <span class="math inline">\(X_2\)</span>, et nous avons dessiné la limite de décision <em>kNN</em> correspondante.</p>
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
@@ -2325,10 +2324,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="KNN_files/figure-html5/ggarange%201-1.png" width="624" /></p>
 </div>
-<p>On voit bien a travers cet exemple les problèmes qui peuvent être liés à la construction d’une segmentation par les k plus proches voisins. Combien de voisins doit on choisir ? Comment mesure-t-on la distance ?</p>
-<p>Pour commencer, outre le choix de la mesure de distance (euclidienne, Manhattan ou autre), certaines variables, qui ont des valeurs élevées, peuvent recouvrir l’influence d’autres variables qui sont mesurés sur des échelles plus faible. Pour éviter cela, il est important de normaliser les valeurs des variables.</p>
-<p>Ensuite comment doit-on choisir <span class="math inline">\(k\)</span> ? Il n’y a pas de choix optimal évident concernant ce paramètre. Avec une faible valeur de <span class="math inline">\(k\)</span> (par exemple <span class="math inline">\(k=1\)</span>), l’algorithme va retourner comme variable cible la plus proche observation. Ce procédé va entrainer du sur-apprentissage car il va tenter de mémoriser l’ensemble de l’échantillon au détriment de la généralisation. D’un autre coté, choisir une valeur de <span class="math inline">\(k\)</span> qui serait trop grande aura tendance à atténuer tout comportement idiosyncrasique appris à partir de l’ensemble d’apprentissage. Ainsi, l’algorithme aurra tendance à faire du sous-apprentisage dans le cas d’un <span class="math inline">\(k\)</span> trop élevé. Il est donc importent de prendre en compte ces considérations lorsque l’on choisit <span class="math inline">\(k\)</span>. Il est possible d’essayer différents <span class="math inline">\(k\)</span> et choisir la valeur qui minimise l’erreur de prédiction.</p>
-<p>Ces trois graphiques montrent les différents cas cités précédemment. On peut voir qu’un <span class="math inline">\(k\)</span> trop faible prend en considération toute les spécificités de l’échantillon d’entrainement contrairement au cas <span class="math inline">\(k=10\)</span> qui garde les spécificités de l’échantillon mais reste suffisamment général pour donner de bonne prédiction En revanche, un <span class="math inline">\(k\)</span> trop grand forme une ligne droite et ne prend pas en compte les spécificités de l’échantillon.</p>
+<p>On voit bien a travers cet exemple les problèmes qui peuvent être liés à la construction d’une segmentation par les <em>k plus proches voisins</em>. Combien de voisins doit-on choisir ? Comment mesure-t-on la distance ?</p>
+<p>Pour commencer, outre le choix de la mesure de distance (euclidienne, Manhattan ou autre), certaines variables, qui ont des valeurs élevées, peuvent recouvrir l’influence d’autres variables qui sont mesurées sur des échelles plus faibles. Pour éviter cela, il est important de normaliser les valeurs des variables.</p>
+<p>Ensuite comment doit-on choisir <span class="math inline">\(k\)</span> ? Il n’y a pas de choix optimal évident concernant ce paramètre. Avec une faible valeur de <span class="math inline">\(k\)</span> (par exemple <span class="math inline">\(k=1\)</span>), l’algorithme va retourner comme variable cible la plus proche observation. Ce procédé va entraîner du sur-apprentissage car il va tenter de mémoriser l’ensemble de l’échantillon au détriment de la généralisation.</p>
+<p>D’un autre coté, choisir une valeur de <span class="math inline">\(k\)</span> qui serait trop grande aura tendance à atténuer tout comportement idiosyncrasique appris à partir de l’ensemble d’apprentissage. Ainsi, l’algorithme aura tendance à faire du sous-apprentissage dans le cas d’un <span class="math inline">\(k\)</span> trop élevé. Il est donc important de prendre en compte ces considérations lorsque l’on choisit <span class="math inline">\(k\)</span>. Il est possible d’essayer différents <span class="math inline">\(k\)</span> et choisir la valeur qui minimise l’erreur de classement.</p>
+<p>Ces trois graphiques montrent les différents cas cités précédemment. On peut voir qu’un <span class="math inline">\(k\)</span> trop faible prend en considération toutes les spécificités de l’échantillon d’entraînement. Un <span class="math inline">\(k=10\)</span> garde les spécificités de l’échantillon mais reste suffisamment général pour donner de bonne prédiction. Finalement, un <span class="math inline">\(k\)</span> trop grand forme une ligne droite et ne prend pas en compte les spécificités de l’échantillon.</p>
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
@@ -2344,7 +2344,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="KNN_files/figure-html5/ggarange%202-1.png" width="624" /></p>
 </div>
-<p>Certaines library de R comme <code>caret</code> permette d’automatiser le choix de K. Ainsi le modèle test différents algorithmes avec une plage de k définie et sélectionne le meilleur modèle final.</p>
+<p>Certaines librairies de R comme <code>caret</code> permettent d’automatiser le choix de <span class="math inline">\(k\)</span>. Ainsi le modèle teste différents algorithmes avec une plage de <span class="math inline">\(k\)</span> définie et sélectionne le meilleur modèle final.</p>
 <h2 id="appliquer">Appliquer</h2>
 <div class="layout-chunk" data-layout="l-body">
 
@@ -2355,7 +2355,6 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <script>fitvids('.shareagain', {players: 'iframe'});</script>
 </div>
 </div>
-<h2 id="aller-plus-loin">Aller plus loin</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->

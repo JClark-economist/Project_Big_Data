@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Analyse quadradique discriminante</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lilian Boissé | Jean Clark" />
+    <meta name="date" content="2021-03-27" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/shareon/shareon.min.css" rel="stylesheet" />
+    <script src="libs/shareon/shareon.min.js"></script>
+    <link href="libs/xaringanExtra-shareagain/shareagain.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-shareagain/shareagain.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <script src="libs/peerjs/peerjs.min.js"></script>
+    <script src="libs/tiny.toast/toast.min.js"></script>
+    <link href="libs/xaringanExtra-broadcast/broadcast.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-broadcast/broadcast.js"></script>
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: title-slide,center, top
+
+# Analyse quadradique discriminante
+
+## Application et code R
+
+### Lilian Boissé | Jean Clark
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+# Application d'un QDA sur la base de données `Default` dans R 
+
+&lt;style type="text/css"&gt;
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab &gt; a {
+	color: #023d4d;
+}
+&lt;/style&gt;
+
+---
+## Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+library(ISLR)
+df &lt;- Default[,c(1,3,4)]
+head(df)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##   default   balance    income
+## 1      No  729.5265 44361.625
+## 2      No  817.1804 12106.135
+## 3      No 1073.5492 31767.139
+## 4      No  529.2506 35704.494
+## 5      No  785.6559 38463.496
+## 6      No  919.5885  7491.559
+## 7      No  825.5133 24905.227
+```
+
+]
+]
+
+---
+class: center, middle
+# Une première application avec la library `MASS`
+
+---
+## Les packages
+
+
+```r
+library(MASS)
+library(ggplot2)
+library(rsample)
+```
+
+---
+
+## Séparer les données **train/test**
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+set.seed(123)
+data_split &lt;- df %&gt;% initial_split(prop = 2/3)
+#création des sous-échantillons apprentissage-test
+test_data &lt;- data_split %&gt;% testing()
+train_data &lt;- data_split %&gt;% training()
+```
+
+
+```r
+head(train_data)
+table(train_data$default)
+```
+
+
+```r
+head(test_data)
+table(test_data$default)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+
+```
+##   default   balance    income
+## 2      No  817.1804 12106.135
+## 3      No 1073.5492 31767.139
+## 4      No  529.2506 35704.494
+## 6      No  919.5885  7491.559
+## 7      No  825.5133 24905.227
+## 8      No  808.6675 17600.451
+```
+
+
+
+```
+## 
+##   No  Yes 
+## 6452  215
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+
+```
+##    default   balance   income
+## 1       No  729.5265 44361.63
+## 5       No  785.6559 38463.50
+## 18      No  527.5402 17636.54
+## 20      No 1095.0727 26464.63
+## 21      No  228.9525 50500.18
+## 25      No  773.2117 34353.31
+```
+
+
+
+```
+## 
+##   No  Yes 
+## 3215  118
+```
+
+]
+]
+
+
+---
+## Apprentissage
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+qda.fit &lt;- qda(default~., data = train_data)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+## Call:
+## qda(default ~ ., data = train_data)
+## 
+## Prior probabilities of groups:
+##         No        Yes 
+## 0.96775161 0.03224839 
+## 
+## Group means:
+##       balance   income
+## No   802.7554 33475.28
+## Yes 1733.0563 32446.00
+```
+
+]
+]
+
+---
+## Prédiction
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+res.qda &lt;- predict(qda.fit, newdata =test_data)
+Matrice_confusion &lt;- table(res.qda$class, test_data$default)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##      
+##         No  Yes
+##   No  3209   88
+##   Yes    6   30
+```
+]
+]
+
+
+---
+class: center, middle
+# Une seconde application avec la library `caret`
+
+---
+## Les packages
+
+
+```r
+library(caret)
+```
+
+---
+
+## Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+set.seed(123)
+#Spliting data as training and test set. Using createDataPartition() function from caret
+trainIndex &lt;- createDataPartition(df$default, p = 2/3,list = FALSE)
+train &lt;- df[ trainIndex,]
+test  &lt;- df[-trainIndex,]
+```
+
+
+```r
+table(train$default)
+table(test$default)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+
+```
+##   default  balance   income
+## 1      No 729.5265 44361.63
+## 2      No 817.1804 12106.13
+## 4      No 529.2506 35704.49
+## 5      No 785.6559 38463.50
+## 7      No 825.5133 24905.23
+```
+
+
+```
+## 
+##   No  Yes 
+## 6445  222
+```
+
+]
+
+.panel[.panel-name[Résultats - Test]
+
+
+```
+##    default   balance    income
+## 3       No 1073.5492 31767.139
+## 6       No  919.5885  7491.559
+## 8       No  808.6675 17600.451
+## 10      No    0.0000 29275.268
+## 12      No 1220.5838 13268.562
+```
+
+
+```
+## 
+##   No  Yes 
+## 3222  111
+```
+
+]
+]
+
+---
+## Cross validation
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+#Cross validation
+fitControl &lt;- trainControl(
+ method = "repeatedcv",
+ number = 10,
+ repeats = 5)
+```
+
+]
+]
+
+---
+## Apprentissage
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+#Cross validation
+qda.fit &lt;- train(default ~ .,
+                data = train,
+                method = "qda",
+                trainControl=fitControl,
+                preProcess=c("center", "scale"))
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##   parameter  Accuracy     Kappa  AccuracySD  KappaSD
+## 1      none 0.9719538 0.3496482 0.002984938 0.056069
+```
+
+]
+]
+
+---
+
+## Prediction
+
+.panelset[
+.panel[.panel-name[Code]
+
+
+```r
+predictions &lt;- predict(qda.fit, test)
+
+confusion_matrix &lt;- confusionMatrix(predictions, test$default)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+
+```
+##           Reference
+## Prediction   No  Yes
+##        No  3209   78
+##        Yes   13   33
+```
+
+]
+]
+
+
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "<div class=\"progress-bar-container\">\n  <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">\n  </div>\n</div>\n",
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,331 @@
+---
+title: "Analyse quadradique discriminante"
+subtitle: "Application et code R"
+author: Lilian Boissé | Jean Clark
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false
+    lib_dir: libs 
+    nature:
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3)
+
+library(ymlthis)
+library(tidyverse)
+library(xaringan)
+library(xaringanExtra)
+library(palmerpenguins)
+xaringanExtra::use_panelset()
+xaringanExtra::use_share_again()
+xaringanExtra::style_share_again(
+  share_buttons = c("twitter", "linkedin", "pocket")
+)
+```
+
+```{r broadcast, echo=FALSE}
+xaringanExtra::use_broadcast()
+```
+
+class: title-slide,center, top
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle`
+
+### `r rmarkdown::metadata$author`
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+class: center, middle
+# Application d'un QDA sur la base de données `Default` dans R 
+
+```{css, echo=FALSE}
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab > a {
+	color: #023d4d;
+}
+```
+
+---
+## Charger la base de données
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+library(ISLR)
+df <- Default[,c(1,3,4)]
+head(df)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+head(df,7)
+```
+
+]
+]
+
+---
+class: center, middle
+# Une première application avec la library `MASS`
+
+---
+## Les packages
+
+```{r,message=FALSE}
+library(MASS)
+library(ggplot2)
+library(rsample)
+```
+
+---
+
+## Séparer les données **train/test**
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+set.seed(123)
+data_split <- df %>% initial_split(prop = 2/3)
+#création des sous-échantillons apprentissage-test
+test_data <- data_split %>% testing()
+train_data <- data_split %>% training()
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+head(train_data)
+table(train_data$default)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+head(test_data)
+table(test_data$default)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+```{r,echo=FALSE}
+head(train_data)
+```
+
+
+```{r,echo=FALSE}
+table(train_data$default)
+```
+
+]
+.panel[.panel-name[Résultats - Test]
+
+```{r, echo=FALSE}
+head(test_data)
+```
+
+
+```{r, echo=FALSE}
+table(test_data$default)
+```
+
+]
+]
+
+
+---
+## Apprentissage
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+qda.fit <- qda(default~., data = train_data)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+qda.fit 
+```
+
+]
+]
+
+---
+## Prédiction
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+res.qda <- predict(qda.fit, newdata =test_data)
+Matrice_confusion <- table(res.qda$class, test_data$default)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+Matrice_confusion 
+```
+]
+]
+
+
+---
+class: center, middle
+# Une seconde application avec la library `caret`
+
+---
+## Les packages
+
+```{r,message=FALSE}
+library(caret)
+```
+
+---
+
+## Séparer les données **train/test**
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+set.seed(123)
+#Spliting data as training and test set. Using createDataPartition() function from caret
+trainIndex <- createDataPartition(df$default, p = 2/3,list = FALSE)
+train <- df[ trainIndex,]
+test  <- df[-trainIndex,]
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+table(train$default)
+table(test$default)
+```
+]
+
+.panel[.panel-name[Résultats - Train]
+
+```{r,echo=FALSE}
+head(train,5)
+```
+
+```{r,echo=FALSE}
+table(train$default)
+```
+
+]
+
+.panel[.panel-name[Résultats - Test]
+
+```{r,echo=FALSE}
+head(test, 5)
+```
+
+```{r,echo=FALSE}
+table(test$default)
+```
+
+]
+]
+
+---
+## Cross validation
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+#Cross validation
+fitControl <- trainControl(
+ method = "repeatedcv",
+ number = 10,
+ repeats = 5)
+```
+
+]
+]
+
+---
+## Apprentissage
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+#Cross validation
+qda.fit <- train(default ~ .,
+                data = train,
+                method = "qda",
+                trainControl=fitControl,
+                preProcess=c("center", "scale"))
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+qda.fit$results
+```
+
+]
+]
+
+---
+
+## Prediction
+
+.panelset[
+.panel[.panel-name[Code]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+predictions <- predict(qda.fit, test)
+
+confusion_matrix <- confusionMatrix(predictions, test$default)
+```
+]
+
+.panel[.panel-name[Résultats]
+
+```{r,echo=FALSE}
+confusion_matrix$table
+```
+
+]
+]
+
+
+
+
+
+

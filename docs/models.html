@@ -87,27 +87,24 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_meta_tags-->
   <title>BIG DATA: Le cours</title>
 
-  <meta property="description" itemprop="description" content="Une introduction aux méthodes statistiques nécessaires à la classification"/>
 
 
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
   <meta property="og:title" content="BIG DATA: Le cours"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="Une introduction aux méthodes statistiques nécessaires à la classification"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="BIG DATA"/>
 
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
   <meta property="twitter:title" content="BIG DATA: Le cours"/>
-  <meta property="twitter:description" content="Une introduction aux méthodes statistiques nécessaires à la classification"/>
 
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","site"]}},"value":[{"type":"character","attributes":{},"value":["Le cours"]},{"type":"character","attributes":{},"value":["Une introduction aux méthodes statistiques nécessaires à la classification\n"]},{"type":"character","attributes":{},"value":["distill::distill_website"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","site"]}},"value":[{"type":"character","attributes":{},"value":["Le cours"]},{"type":"character","attributes":{},"value":["distill::distill_website"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2255,7 +2252,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Le cours","description":"Une introduction aux méthodes statistiques nécessaires à la classification","authors":[]}
+{"title":"Le cours","authors":[]}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2286,7 +2283,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <h1>Le cours</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p><p>Une introduction aux méthodes statistiques nécessaires à la classification</p></p>
+
 </div>
 
 
@@ -2304,67 +2301,42 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </nav>
 </div>
 <h3 id="les-notions-à-connaitre"><a href="Notions.html">Les notions à connaitre</a></h3>
+<p>Comment calcule-t-on une distance entre deux points ? N’existe-t-il qu’une seule façon de calculer une distance ? Qu’est que l’inertie ? Vous trouverez dans ce chapitre des notions nécessaires à la bonne compréhension des techniques de classement présentées sur ce site.</p>
 <h3 id="les-mesures-de-qualité-dun-modèle"><a href="qualite.html">Les mesures de qualité d’un modèle</a></h3>
 <p>Comment mesure-t-on la qualité d’un modèle ? Ce chapitre vous introduira les problématiques de base à prendre en compte lors de la réalisation et de l’utilisation d’une technique de classement ou de prédiction, ainsi que des informations sur des mesures de la qualité des modèles.</p>
 <h3 id="lanalyse-factorielle-discriminante"><a href="LDA.html">L’analyse factorielle discriminante</a></h3>
 <p>L’analyse factorielle discriminante est l’une des techniques de classification les plus communes, particulièrement quand on a plusieurs classes. De par sa simplicité, elle est souvent utilisée comme alternative à la régression logistique. Quand les classes sont très distinctes ou quand <span class="math inline">\(n\)</span> est petit et les prédicteurs <span class="math inline">\(X\)</span> sont approximativement normaux, elle est plus stable que la régression logistique.</p>
-<p>L’analyse factorielle discriminante nous permet aussi de représenter les liaisons entre <span class="math inline">\(Y\)</span> et les <span class="math inline">\(X\)</span> (analyse discriminante descriptive), ou bien de trouver les règles de prédiction des modalités de <span class="math inline">\(Y\)</span> à partir des valeurs des <span class="math inline">\(X\)</span> (analyse discriminante predictive).</p>
+<p>L’analyse factorielle discriminante nous permet aussi de représenter les liaisons entre <span class="math inline">\(Y\)</span> et les <span class="math inline">\(X\)</span> (analyse discriminante descriptive), ou bien de trouver les règles de prédiction des modalités de <span class="math inline">\(Y\)</span> à partir des valeurs des <span class="math inline">\(X\)</span> (analyse discriminante prédictive).</p>
 <p>L’analyse discriminante offre plusieurs approches à cette double problématique.</p>
 <table>
 <colgroup>
-<col style="width: 19%" />
+<col style="width: 20%" />
 <col style="width: 36%" />
 <col style="width: 43%" />
 </colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th><strong>Méthode descriptive</strong> (représenter les groupes)</th>
-<th><strong>Méthode prédictive</strong> (prédire l’appartenance à un groupe)</th>
-</tr>
-</thead>
 <tbody>
 <tr class="odd">
-<td><strong>Approche géométrique</strong></td>
+<td></td>
+<td><h5 id="méthode-descriptive-représenter-les-groupes">Méthode descriptive (représenter les groupes)</h5></td>
+<td><h5 id="méthode-prédictive-prédire-lappartenance-à-un-groupe">Méthode prédictive (prédire l’appartenance à un groupe)</h5></td>
+</tr>
+<tr class="even">
+<td><h5 id="approche-géométrique">Approche géométrique</h5></td>
 <td>OUI</td>
 <td>OUI</td>
 </tr>
-<tr class="even">
-<td><strong>Approche probabiliste</strong></td>
+<tr class="odd">
+<td><h5 id="approche-probabiliste">Approche probabiliste</h5></td>
 <td>NON</td>
 <td>OUI</td>
 </tr>
 </tbody>
 </table>
 <h3 id="lanalyse-discriminante-quadratique"><a href="QDA.html">L’analyse discriminante quadratique</a></h3>
-<table>
-<colgroup>
-<col style="width: 19%" />
-<col style="width: 36%" />
-<col style="width: 43%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th><strong>Méthode descriptive</strong> (représenter les groupes)</th>
-<th><strong>Méthode prédictive</strong> (prédire l’appartenance à un groupe)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Approche géométrique</strong></td>
-<td>NON</td>
-<td>NON</td>
-</tr>
-<tr class="even">
-<td><strong>Approche probabiliste</strong></td>
-<td>NON</td>
-<td>OUI</td>
-</tr>
-</tbody>
-</table>
+<p>L’analyse discriminante quadratique propose une approche alternative à l’analyse discriminante linéaire. Que choisir entre la LDA et la QDA ?</p>
+<p>La QDA est beaucoup plus flexible que la LDA et à une variance beaucoup plus petite. Seulement, le biais est beaucoup plus élevé. Si on dispose de beaucoup de données, on privilégiera la QDA.</p>
 <h3 id="les-k-plus-proches-voisins-ou-knn"><a href="KNN.html">Les K plus proches voisins ou KNN</a></h3>
-<p>L’algorithme des K plus proches voisins ou K-nearest neighbors (kNN) est un algorithme de Machine Learning qui appartient à la classe des algorithmes d’apprentissage supervisé simple et facile à mettre en œuvre qui peut être utilisé pour résoudre les problèmes de classification et de régression.</p>
+<p>L’algorithme des K plus proches voisins ou K-nearest neighbors (kNN) est un algorithme de Machine Learning qui appartient à la classe des algorithmes d’apprentissage supervisé. Simple et facile à mettre en œuvre, il peut être utilisé pour résoudre les problèmes de classification et de régression.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->

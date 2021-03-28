@@ -7,6 +7,101 @@ site: distill::distill_website
 
 ## Comprendre
 
+Dans l'analyse factorielle discriminante, chaque classe possède une distribution gaussienne avec une moyenne spécifique, mais une matrice des variances-covariances commune. L'analyse discriminante quadratique suppose aussi que les distributions sont gaussiennes mais ici les matrices variances-covariances ne sont pas forcément communes.
+
+Dans chaque classe $k$, on suppose que la distribution est du type :
+
+$$
+X_b \sim \mathcal{N}(\mu_k,\Sigma_k)
+$$
+Dans ces conditions, on obtient comme fonction d'affectation :
+
+\begin{eqnarray}
+\delta_k(x)&=&\frac{1}{2} \text{ }^t(x-\mu_k)\Sigma^{-1}_k(x-\mu_k)-\frac{1}{2}ln|\Sigma_k|+ln(\pi_k),\\
+&=&-\frac{1}{2}\text{ } ^tx\Sigma^{-1}_kx+^tx\Sigma^{-1}_k\mu_k-\frac{1}{2} \text{  }^t\mu_k\Sigma^{-1}_k\mu_k-\frac{1}{2}ln|\Sigma_k|+ln(\pi_k).
+\end{eqnarray}
+
+On affecte l'individu dans la classe où $\delta_k(x)$ est le plus grand. Contrairement à la formule vu dans la partie sur [l'analyse discriminante linéaire](LDA.html), la quantité $x$ apparaît comme une fonction quadratique, d'où l'appellation.
+
+Quel modèle choisir entre *LDA* et *QDA* ? La réponse provient d’un compromis biais/variance. Si on dispose de $p$ prédicteurs, alors pour estimer la matrice des variances-covariances nous devons estimer $p(p + 1)/2$ paramètres. La méthode *QDA* doit estimer une matrice des variances covariances pour chacune des classes soit au total $kp(p + 1)/2$ paramètres. En supposant une matrice $\Sigma$ commune, la méthode *LDA* doit estimer $kp$ coefficient linéaire. En conséquence la méthode *LDA* est beaucoup moins flexible que la méthode *QDA* et elle a une variance beaucoup plus petite. Mais il y a aussi le biais, on observe le phénomène contraire. Cela dépend donc du nombre de données dont on dispose. Si les données sont importantes on privilégiera la méthode *QDA*.
+
+
+```{r bd graphique QDA,echo=FALSE, message=FALSE,warning=FALSE}
+library(plotly)
+gris_mecen='#344a58'
+bleu_mecen='#238694'
+set.seed(123)
+df1 <- data.frame(X= runif(50,-1,1), Y= runif(50,2 ,4), Color = "Groupe 1")
+df1_bis<- data.frame(X= runif(10,-1,-0.5), Y= runif(10,0,3), Color = "Groupe 1")
+df2_bis<- data.frame(X= runif(10,0.5,1), Y= runif(10, 0,3), Color = "Groupe 1")
+df1<-rbind(df1,df1_bis,df2_bis)
+df2 <- data.frame(X= runif(50, -0.5,0.5), Y= runif(50, 0,2), Color = "Groupe 2")
+
+X_qda_1<-seq(-0.7,0.7,0.01)
+Y_qda_1<--X_qda_1^2*4+2
+
+
+df3 <- data.frame(X= runif(50,-1,1), Y= runif(50, 2,4), Color = "Groupe 1")
+df4 <- data.frame(X= runif(20, -0.25,0.25), Y= runif(20,0,1.9), Color = "Groupe 2")
+
+
+df5 <- data.frame(X= runif(50,-1,1), Y= runif(50, 2,4), Color = "Groupe 1")
+df6 <- data.frame(X= runif(50,-1,1), Y= runif(50, 0,1.9), Color = "Groupe 2")
+
+X_qda_2<-seq(-1,1,0.01)
+Y_qda_2<--X_qda_2^2*0.25+2.1
+
+```
+
+
+```{r graphique QDA,echo=FALSE, message=FALSE,warning=FALSE}
+updatemenus <- list(
+  list(x=1.3,y=0.3,
+    type="buttons",
+    buttons=list(
+      list(
+        label="QDA adaptée",
+        method="update",
+        args=list(list(visible=c(T,T,F,F,F,F,T,T,F)),list(title="Meilleure performance avec la QDA"))
+      ),
+      list(
+        label="QDA pas adaptée",
+        method="update",
+        args=list(list(visible=c(F,F,T,T,F,F,T,T,F)),list(title="Peu de données, biais très fort"))
+      ),
+      list(
+        label="Même performance",
+        method="update",
+        args=list(list(visible=c(F,F,F,F,T,T,T,F,T)),list(title="Les deux modèles sont adaptés"))
+      )
+    )
+  )
+)
+plot_ly()%>%add_markers(x=df1$X,y=df1$Y, marker=list(color=gris_mecen),visible=T, name = "Groupe 1")%>%
+  add_markers(x=df2$X,y=df2$Y, marker=list(color=bleu_mecen),visible=T, name = "Groupe 2")%>%
+  add_markers(x=df3$X,y=df3$Y, marker=list(color=gris_mecen),visible=F, name = "Groupe 1")%>%
+  add_markers(x=df4$X,y=df4$Y, marker=list(color=bleu_mecen),visible=F, name = "Groupe 2")%>%
+  add_markers(x=df5$X,y=df5$Y, marker=list(color=gris_mecen),visible=F, name = "Groupe 1")%>%
+  add_markers(x=df6$X,y=df6$Y, marker=list(color=bleu_mecen),visible=F, name = "Groupe 2")%>%
+  add_lines(x=c(-1,1),y=c(2,2),visible=T,name='LDA',color="#344a57")%>%
+  add_lines(x=X_qda_1,y=Y_qda_1,visible=T,name='QDA',color="red")%>%
+  add_lines(x=X_qda_2,y=Y_qda_2,visible=F,name='QDA',color="red")%>%
+  layout( showlegend = TRUE,updatemenus = updatemenus, title="Meilleure performance avec la QDA")
+```
+
++ **QDA adaptée :** dans ce premier cas, la souplesse de la *QDA* nous permet de bien mieux séparer les deux groupes. Un nouveau point sera mieux classé avec une *QDA* qu'une *LDA*.
+
++ **QDA pas adaptée :** dans ce cas, on a très peu de données sur le groupe 2, un nouveau point pourrait très bien apparaître en dehors de la prédiction de la *QDA*. On a ici un problème de biais et la *QDA* ne sera à priori pas adaptée.
+
++ **Même performance :** dans ce dernier cas, les deux méthodes donneront les mêmes résultats.
+
 ## Appliquer
 
-## Aller plus loin
+```{r share-again, echo=FALSE}
+xaringanExtra::use_share_again()
+```
+
+```{r embed-xaringan, echo=FALSE, fig.cap="[Slides](slides/index.html)"}
+xaringanExtra::embed_xaringan(url = "slides_QDA_code/index.html", ratio = "16:9")
+```
+\
