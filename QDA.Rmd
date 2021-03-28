@@ -7,7 +7,7 @@ site: distill::distill_website
 
 ## Comprendre
 
-Dans l'analyse factorielle discriminante, chaque classe possède une distribution gaussienne avec une moyenne spécifique, mais une matrice des variances-covariances commune. L'analyse discriminante quadratique suppose aussi que les distributions sont gaussiennes mais ici les matrices variances-covariances ne sont pas forcément communes.
+Dans l'analyse factorielle discriminante, chaque classe possède une distribution gaussienne avec une moyenne spécifique, mais une matrice des variances-covariances communes. L'analyse discriminante quadratique suppose aussi que les distributions sont gaussiennes mais ici les matrices variances-covariances ne sont pas forcément communes.
 
 Dans chaque classe $k$, on suppose que la distribution est du type :
 
@@ -21,9 +21,9 @@ Dans ces conditions, on obtient comme fonction d'affectation :
 &=&-\frac{1}{2}\text{ } ^tx\Sigma^{-1}_kx+^tx\Sigma^{-1}_k\mu_k-\frac{1}{2} \text{  }^t\mu_k\Sigma^{-1}_k\mu_k-\frac{1}{2}ln|\Sigma_k|+ln(\pi_k).
 \end{eqnarray}
 
-On affecte l'individu dans la classe où $\delta_k(x)$ est le plus grand. Contrairement à la formule vu dans la partie sur [l'analyse discriminante linéaire](LDA.html), la quantité $x$ apparaît comme une fonction quadratique, d'où l'appellation.
+On affecte l'individu dans la classe où $\delta_k(x)$ est le plus grand. Contrairement à la formule vue dans la partie sur [l'analyse discriminante linéaire](LDA.html), la quantité $x$ apparaît comme une fonction quadratique, d'où l'appellation.
 
-Quel modèle choisir entre *LDA* et *QDA* ? La réponse provient d’un compromis biais/variance. Si on dispose de $p$ prédicteurs, alors pour estimer la matrice des variances-covariances nous devons estimer $p(p + 1)/2$ paramètres. La méthode *QDA* doit estimer une matrice des variances covariances pour chacune des classes soit au total $kp(p + 1)/2$ paramètres. En supposant une matrice $\Sigma$ commune, la méthode *LDA* doit estimer $kp$ coefficient linéaire. En conséquence la méthode *LDA* est beaucoup moins flexible que la méthode *QDA* et elle a une variance beaucoup plus petite. Mais il y a aussi le biais, on observe le phénomène contraire. Cela dépend donc du nombre de données dont on dispose. Si les données sont importantes on privilégiera la méthode *QDA*.
+Quel modèle choisir entre *LDA* et *QDA* ? La réponse provient d’un compromis biais/variance. Si on dispose de $p$ prédicteurs, alors pour estimer la matrice des variances-covariances nous devons estimer $p(p + 1)/2$ paramètres. La méthode *QDA* doit estimer une matrice des variances-covariances pour chacune des classes soit au total $kp(p + 1)/2$ paramètres. En supposant une matrice $\Sigma$ commune, la méthode *LDA* doit estimer $kp$ coefficient linéaire. En conséquence, la méthode *LDA* est beaucoup moins flexible que la méthode *QDA* et elle a une variance beaucoup plus petite. Mais il y a aussi le biais, où l'on observe le phénomène contraire. Cela dépend donc du nombre de données dont on dispose. Si les données sont importantes on privilégiera la méthode *QDA*.
 
 
 ```{r bd graphique QDA,echo=FALSE, message=FALSE,warning=FALSE}

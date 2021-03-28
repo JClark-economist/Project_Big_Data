@@ -384,11 +384,11 @@ Quand on a un nouveau point que l'on cherche à classer dans un groupe, nous pou
 
 + Elle ne s'applique en principe qu'aux variables explicatives quantitatives (alternative avec la méthode *DISQUAL*) ;
 
-+ Elle est sensible aux observations extrèmes.
++ Elle est sensible aux observations extrêmes.
 
 #### Règle géométrique d'affectation
 
-Une règle très intuitive d'affectation d'un individu, mais qui à ses limites, consiste à affecter le nouvel individu de coordonnées $x$ au groupe $i$ dont l'individu est le plus proche du centre de gravité. 
+Une règle très intuitive d'affectation d'un individu, mais qui a ses limites, consiste à affecter le nouvel individu de coordonnées $x$ au groupe $i$ dont l'individu est le plus proche du centre de gravité. 
 
 On utilise la règle de *Mahalanobis-Fisher* ([et la distance de Mahalanobis](https://en.wikipedia.org/wiki/Mahalanobis_distance)), où en utilisant la métrique $W^{-1}$ (voir la section [notions](Notions.html)) on obtient la distance par :
 
@@ -491,7 +491,7 @@ $$
 On affecte alors la nouvelle observation à la classe $c$ pour laquelle $P(Y=c|X=x)=p_c(x)$ est maximum.
 Il faut donc estimer les $\pi_c$ et les $f_c$.
 
-$\pi_c$ est estimé à partir de l’échantillon d’entrainement par la formule :
+$\pi_c$ est estimé à partir de l’échantillon d’entraînement par la formule :
 
 $$
 \pi_c =\frac{n_c}{n}.
@@ -512,14 +512,14 @@ $$
 f(x)=\frac{1}{(2\pi)^{p/2}|\Sigma|^{1/2}}exp\left[-\frac{1}{2}\text{ }^t(x-\mu)\Sigma^{-1}(x-\mu)\right].
 $$
 
-Dans le cas où $p > 1$, nous supposons que les observations dans la $k^e$ classe sont issues d’un vecteur gaussien de distribution $\mathcal{N} (\mu_k, \Sigma)$ où $\mu_k$ est le vecteur moyen de cette classe, et $\Sigma$ la matrice des variances commune à l’ensemble des classes. On classifie l’observation $x$ dans la classe qui possède la quantité maximum suivante:
+Dans le cas où $p > 1$, nous supposons que les observations dans la $k^e$ classe sont issues d’un vecteur gaussien de distribution $\mathcal{N} (\mu_k, \Sigma)$ où $\mu_k$ est le vecteur moyen de cette classe, et $\Sigma$ la matrice des variances communes à l’ensemble des classes. On classifie l’observation $x$ dans la classe qui possède la quantité maximum suivante:
 
 $$
 \hat\delta_c(x)=ln(\hat\pi_c)-\frac{1}{2}\text{ }^t\hat\mu_c\Sigma^{-1}\mu_c+\text{ }^tc\Sigma^{-1}\mu_c.
 $$
 
 
-On observe que l’équation $\hat\delta_c(x)$ dépend de $x$ au degré 1. En anglais cette méthode est appelé **linear discriminant analysis (LDA)**.
+On observe que l’équation $\hat\delta_c(x)$ dépend de $x$ au degré 1. En anglais, cette méthode est appelée **linear discriminant analysis (LDA)**.
 
 
 

@@ -82,14 +82,14 @@ background-image: url(images/lin_reg.png)
 background-size: cover
 class: center,middle
 
-## Vous êtes probablement familiés avec la régression linéaire.
+## Vous êtes probablement familier avec la régression linéaire.
 ### Si vous ne l'êtes pas, un petit rappel s'impose...
 ---
 class: left,middle
 
 ##La régression linéaire
 
-Imaginons que nous voulions expliquer le poids de d'un individu `\(i\)` en fonction de certaines de ses caractéristiques. Par exemple :
+Imaginons que nous voulions expliquer le poids d'un individu `\(i\)` en fonction de certaines de ses caractéristiques. Par exemple :
 
 `$$\underbrace{Poids_i}_{\text{Variable endogène }y}=\underbrace{\alpha}_{\text{Constante}}+\beta_1\underbrace{Taille_i}_{\text{Variable exogène }x}+\underbrace{\epsilon_i}_{\text{Erreur}}.$$`
 
@@ -105,8 +105,8 @@ Imaginons maintenant que nous voulions prédire le sexe de l'individu `\(i\)` en
 
 `$$Sexe_i=\alpha+\beta_1Taille_i+\epsilon_i.$$`
 
-La variable `\(Sexe\)` prend une valeur quand c'est un homme (en général on affecte `\(0\)`) et une autre à la femme (en général `\(1\)`)
-Tout de suite, un modèle de regression linéaire semble moins adapté. Pourquoi ?
+La variable `\(Sexe\)` prend une valeur quand c'est un homme (en général on affecte `\(0\)`) et une autre à la femme (en général `\(1\)`).
+Tout de suite, un modèle de régression linéaire semble moins adapté. Pourquoi ?
 
 Car ici, on essaye de prédire une **réponse qualitative**.
 
@@ -133,11 +133,11 @@ class: left,middle
 
 On utilise des techniques de **classification**, telles que la régression logistique, l'analyse linéaire discriminante, les K-plus proches voisins...
 
-### Des exemples d'utilisation des modèles de classification
+### Des exemples d'utilisations des modèles de classification
 
 1. Une personne arrive aux urgences avec certains symptômes qui peuvent potentiellement être attribués à trois conditions médicales, laquelle ?
 
-2. Un service bancaire en ligne doit être capable de déterminer si une transaction est réalisée sur sur son site est frauduleuse ou non, en ne connaissant que l'adresse IP et l'historique de l'utilisateur.
+2. Un service bancaire en ligne doit être capable de déterminer si une transaction est réalisée sur son site est frauduleuse ou non, en ne connaissant que l'adresse IP et l'historique de l'utilisateur.
 
 3. Avec des données sur des séquences ADN pour un nombre de patients avec ou sans une certaine maladie, un biologiste pourrait déterminer quelles mutations génétiques causent les maladies et celles qui ne les causent pas.
 

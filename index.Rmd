@@ -34,7 +34,7 @@ meta() %>%
 
 ## Introduction 
 
-L'objectif de ce site est de vous introduire certaines techniques de classement utilisés quotidiennement par les acteurs du monde de la Data Science et de la statistique, ainsi que la méthodologie à suivre. Nous vous montrerons de façon intuitive le fonctionnement des modèles et des exemples d'applications. 
+L'objectif de ce site est de vous introduire certaines techniques de classement utilisées quotidiennement par les acteurs du monde de la Data Science et de la statistique, ainsi que la méthodologie à suivre. Nous vous montrerons de façon intuitive le fonctionnement des modèles et des exemples d'applications. 
 
 <aside>Des exemples d'applications R seront donnés. Nous vous recommandons vivement d'installer [R](https://www.r-project.org/), ainsi que [RStudio](https://rstudio.com/products/rstudio/) afin de pouvoir tester le code vous même. </aside>
 

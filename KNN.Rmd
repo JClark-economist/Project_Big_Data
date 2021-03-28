@@ -15,9 +15,9 @@ library(ggforce)
 
 ## Comprendre
 
-Les *kNN* est un algorithme de segmentation (qui peut aussi être utilisé pour faire de la prévision) dans laquelle le classement de chaque individu s'opère en regardant, parmi les individus déjà classés, la classe des $k$ individus qui sont ses plus proches voisins en terme de distance. La distance utilisée par les *kNN* est généralement la *distance euclidienne*. Cependant, d'autres distances peuvent être appliquées telles que la *distance de Manhattan* ou la *distance de Minkowski*. Vous trouverez les explications de ces notions [ici](Notions.html).
+Les *kNN* est un algorithme de segmentation (qui peut aussi être utilisé pour faire de la prévision) dans laquelle le classement de chaque individu s'opère en regardant, parmi les individus déjà classés, la classe des $k$ individus qui sont ses plus proches voisins en terme de distance. La distance utilisée par les *kNN* est généralement la *distance euclidienne*. Cependant, d'autres distances peuvent être appliquées, telles que la *distance de Manhattan* ou la *distance de Minkowski*. Vous trouverez les explications de ces notions [ici](Notions.html).
 
-La figure suivante présente un exemple illustratif de l'approche *kNN*. Dans le graphique de gauche, nous avons tracé un petit ensemble de données d'apprentissage composé de six observations bleu foncé et de six observations bleu clair. Notre objectif est de faire une prédiction pour le point marqué par la croix noire. Supposons que nous choisissions $K = 3$. *kNN* identifiera d'abord les trois observations qui sont les plus proches de la croix. Ce voisinage est représenté par le cercle de couleur rose. Il est composé de deux points bleu foncé et d'un point bleu clair, ce qui donne des probabilités estimées de $\frac{2}{3}$ pour la classe bleu foncé et de $\frac{1}{3}$ pour la classe bleu clair. *kNN* prédit donc que la croix noire appartient à la classe bleu foncé. Dans le graphique de droite, nous avons appliqué l'approche *kNN* avec $K = 3$ à toutes les valeurs possibles de $X_1$ et $X_2$, et nous avons dessiné la limite de décision *kNN* correspondante.
+La figure suivante présente un exemple illustratif de l'approche *kNN*. Dans le graphique de gauche, nous avons tracé un petit ensemble de données d'apprentissage composé de six observations bleu foncé et de six observations bleu clair. Notre objectif est de faire une prédiction pour le point marqué par la croix noire. Supposons que nous choisissions $K = 3$. *kNN* identifiera d'abord les trois observations qui sont les plus proches de la croix. Ce voisinage est représenté par le cercle de couleur rose. Il est composé de deux points bleu foncé et d'un point bleu clair, ce qui donne des probabilités estimées à $\frac{2}{3}$ pour la classe bleu foncé et à $\frac{1}{3}$ pour la classe bleu clair. *kNN* prédit donc que la croix noire appartient à la classe bleu foncé. Dans le graphique de droite, nous avons appliqué l'approche *kNN* avec $K = 3$ à toutes les valeurs possibles de $X_1$ et $X_2$, et nous avons dessiné la limite de décision *kNN* correspondante.
 
 ```{r data explication, echo=FALSE}
 data1 <- data.frame(X= c(1,2,3,4,7,8), Y=c(4,6,1,5,8,7), Col = "Gr A")
@@ -83,7 +83,7 @@ gg2 <- ggplot(data=lgrid) + stat_contour(aes(x=X, y=Y, z=knnPredGrid),
 ggarrange(gg1, gg2)
 ```
 
-On voit bien a travers cet exemple les problèmes qui peuvent être liés à la construction d'une segmentation par les *k plus proches voisins*. Combien de voisins doit-on choisir ? Comment mesure-t-on la distance ?
+On voit bien à travers cet exemple les problèmes qui peuvent être liés à la construction d'une segmentation par les *k plus proches voisins*. Combien de voisins doit-on choisir ? Comment mesure-t-on la distance ?
 
 Pour commencer, outre le choix de la mesure de distance (euclidienne, Manhattan ou autre), certaines variables, qui ont des valeurs élevées, peuvent recouvrir l'influence d'autres variables qui sont mesurées sur des échelles plus faibles. Pour éviter cela, il est important de normaliser les valeurs des variables.
 
@@ -241,7 +241,7 @@ gg3 <- ggplot(data=lgrid3) + stat_contour(aes(x=X, y=Y, z=knnPredGrid3),
 ggarrange(gg1, gg2, gg3, nrow = 1)
 ```
 
-Certaines librairies de R comme `caret` permettent d'automatiser le choix de $k$. Ainsi le modèle teste différents algorithmes avec une plage de $k$ définie et sélectionne le meilleur modèle final.
+Certaines librairies de R comme `caret` permettent d'automatiser le choix de $k$. Ainsi, le modèle teste différents algorithmes avec une plage de $k$ définie et sélectionne le meilleur modèle final.
 
 ## Appliquer
 
