@@ -1,0 +1,435 @@
+---
+title: "Statistique décisionnelle, Classification"
+subtitle: "Présentation du projet Big Data"
+author: Lilian Boissé | Jean Clark
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false
+    lib_dir: libs 
+    nature:
+      slideNumberFormat: |
+        <div class="progress-bar-container">
+          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
+          </div>
+        </div>
+      highlightStyle: solarized-light
+      highlightLanguage: ["r", "css", "yaml"]
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(collapse = TRUE,
+                      fig.retina = 3)
+
+library(ymlthis)
+library(tidyverse)
+library(xaringan)
+library(xaringanExtra)
+library(palmerpenguins)
+xaringanExtra::use_panelset()
+xaringanExtra::use_share_again()
+xaringanExtra::style_share_again(
+  share_buttons = c("twitter", "linkedin", "pocket")
+)
+```
+
+```{r broadcast, echo=FALSE}
+xaringanExtra::use_broadcast()
+```
+
+class: title-slide,center, top
+
+
+## `r rmarkdown::metadata$subtitle`
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+## Sommaire
+
+1. Introduction et présentation du site
+
+--
+
+2. Création du site
+
+--
+
+3. Création de graphiques `Plotly`
+
+--
+
+4. Création de `Xaringan`
+
+--
+
+5. Conclusion et développement
+
+
+---
+class: center, middle
+# Introduction et présentation du site
+
+```{css, echo=FALSE}
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab > a {
+	color: #023d4d;
+}
+```
+
+---
+## Objectifs
+
+- Créer une ressource en ligne pour les étudiants du Mécen ;
+
+  - Une ressource intuitive et facile d'accès ;
+  - Des ressources de cours plus interactives ;
+  - Un support pour le cours de Data Mining en M1.
+
+--
+
+- Construire un site internet avec `R` ;
+  - Apprendre les bases du `html` et du `css` ;
+  - Apprendre comment déployer un site à partir de `R`.
+  
+--
+
+- Développer nos connaissances en `R` ;
+  - Graphiques semi-interactifs avec `Plotly` ;
+  - Développement de nos `ggplot` skills ;
+  - Approfondissement des connaissances `tidyverse`.
+
+---
+## Le site
+
+
+- Introduction à la classification ;
+
+- Quelques notions importantes ;
+
+- Construction et qualité d'un modèle ;
+
+- Modèles de classement présentés : LDA, QDA et kNN ;
+
+- [Lien vers le site.](https://big-data-techniques-de-classement.netlify.app/)
+
+---
+
+class: center, middle
+# Création du site
+
+---
+## Pourquoi avoir choisi de créer un site ?
+
+--
+
+- La polyvalence : intégration de graphiques, textes, équations, présentations `Xaringan`...
+
+--
+
+- La souplesse : esthétique, la quantité de contenu...
+
+--
+
+- La facilité d'accès à l'information ;
+
+--
+
+- Plus adapté à du contenu pédagogique.
+
+---
+## Création d'un site `distill`
+
+.panelset[
+.panel[.panel-name[Construction]
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+library(distill)
+```
+
+- Un fichier `.yml` pour gérer la construction du site ;
+
+- Un fichier `.css` pour gérer l'esthétique ;
+
+- Des fichiers `.Rmd` pour générer le contenu et donc les pages `.html` ;
+  
+  - Les fichiers `.html` sont stockées automatiquement dans un dossier `docs`. 
+
+]
+.panel[.panel-name[Intégration des `Xaringan`]
+
+- Des dossiers contenant les présentations ;
+
+- On appelle les dossiers à l'endroit souhaité dans le site avec :
+
+```{r, results='hide',warning=FALSE,eval=FALSE,message=FALSE}
+library(xaringanExtra)
+use_share_again()
+embed_xaringan(url = "slides_homepage/index.html", ratio = "16:9")
+```
+
+
+
+]
+]
+
+---
+
+class: center, middle
+# Création de graphiques `Plotly`
+
+---
+
+## `Plotly` ?
+
+--
+
+- Une librairie graphique qui permet de rendre Les graphiques interactifs ;
+
+  - À la base, `Plotly` est une librairie `Python` qui a été adaptée en `R` ;
+  - Toutes sortes de graphiques peuvent être réalisés ce qui nous offre une certaines flexibilité ;
+  - Les graphiques sont pré-générés et s'intègrent donc parfaitement à un site internet et ne nécessitent pas de serveurs à l'inverse de `R Shiny`.
+
+--
+
+#### Comment construit-on un graphique `Plotly` ?
+
+--
+
+- On crée d'abord les graphiques, presque comme un `ggplot` classique ;
+
+--
+
+- On gère l'interfaçage des graphiques en créant un menu.
+
+---
+
+## Un exemple
+
+.panelset[
+.panel[.panel-name[Les graphiques]
+
+
+```{r, results='hide',warning=FALSE, message=FALSE,eval=FALSE}
+library(plotly)
+fig <- plot_ly() %>%
+  add_markers(x=df1$X, y=df1$Y, marker=list(color=bleu_mecen), name = "Groupe 1") %>%
+  add_markers(x=df2$X, y=df2$Y, marker=list(color='pink'), name = "Groupe 2")%>%
+  add_lines(x=df3$X, y=df3$Y,visible=F,name='Point par point',color="#344a57")%>%
+  add_lines(x=df4$X, y=df4$Y,visible=F,name='Linéaire',color="#344a58")%>%
+  add_lines(x=df5$X, y=df5$Y,visible=F,name='Quadratique',color="#344a59")%>%
+  layout(title = "Projection des groupes sur les différents axes", showlegend = TRUE,updatemenus = updatemenus,
+         xaxis = list(tickvals = c(-1,0,1, 2,3,4,5,6,7)),
+           yaxis = list(tickvals = c(-1,0,1, 2,3,4,5,6,7)))
+```
+
+]
+.panel[.panel-name[L'interface]
+
+```{r, results='hide',warning=FALSE,eval=FALSE,message=FALSE}
+updatemenus <- list(list(x=1.3,y=0.3,type="buttons",
+    buttons=list(list(label="Sur-apprentissage",method="update",
+        args=list(list(visible=c(T,T,T,F,F)),list(title="Sur-apprentissage"))
+      ),
+      list(label="Sous-apprentissage",method="update",
+        args=list(list(visible=c(T,T,F,T,F)),list(title="Sous-apprentissage"))
+      ),
+      list(label="Bon modèle",method="update",
+        args=list(list(visible=c(T,T,F,F,T)),list(title="Bon modèle"))
+      ),
+      list(label="Tous",method="update",
+        args=list(list(visible=c(T,T,T,T,T)),list(title="Tous les modèles"))))))
+```
+
+
+
+]
+.panel[.panel-name[Le résultat]
+
+```{r, echo=F,warning=FALSE,message=FALSE,fig.align='center'}
+library(plotly)
+gris_mecen='#344a58'
+bleu_mecen='#238694'
+df1 <- data.frame(X= c(1,1.2,2,2.1,2.15,2.16,2.3,2.5,3,3.1,4,4.5,5.2,5.4,5.42), Y= c(5,1,2.5,4,6,4.5,4.2,5.3,4.9,4.2,5,3.2,5.5,5.9,5), Color = factor("Groupe 1"))
+df2 <- data.frame(X= c(2.5,2.55,2.56,2.7,3,3.3,4,4.1,5.1,5.15,5.5,
+                       3.5,4.1,5),
+                  Y= c(2.6,2.7,3,4,3.2,3.5,3.7,3.1,4.1,4.15,3.5,
+                       2.5,1.5,2),
+                  Color = factor("Groupe 2"))
+df3 <- data.frame(X= c(1.5,2.5,2.55,2.56,2.7,3,3.3,4,4.5,5.1,5.15,5.5,5.7), Y= c(1,2.9,3.1,3.2,4.3,3.4,3.7,3.9,3,4.3,4.4,3.7,3.7))
+df4<-data.frame(X=c(1,5.5),Y=c(3,5))
+x_bien<-seq(2.05,5.7,0.1)
+y_bien<--1/(x_bien-1.8)+4.8
+df5<-data.frame(X=x_bien,Y=y_bien)
+
+updatemenus <- list(list(x=1.3,y=0.3,type="buttons",
+    buttons=list(list(label="Sur-apprentissage",method="update",
+        args=list(list(visible=c(T,T,T,F,F)),list(title="Sur-apprentissage"))
+      ),
+      list(label="Sous-apprentissage",method="update",
+        args=list(list(visible=c(T,T,F,T,F)),list(title="Sous-apprentissage"))
+      ),
+      list(label="Bon modèle",method="update",
+        args=list(list(visible=c(T,T,F,F,T)),list(title="Bon modèle"))
+      ),
+      list(label="Tous",method="update",
+        args=list(list(visible=c(T,T,T,T,T)),list(title="Tous les modèles"))))))
+
+fig <- plot_ly() %>%
+  add_markers(x=df1$X, y=df1$Y, marker=list(color=bleu_mecen), name = "Groupe 1") %>%
+  add_markers(x=df2$X, y=df2$Y, marker=list(color='pink'), name = "Groupe 2")%>%
+  add_lines(x=df3$X, y=df3$Y,visible=F,name='Point par point',color="#344a57")%>%
+  add_lines(x=df4$X, y=df4$Y,visible=F,name='Linéaire',color="#344a58")%>%
+  add_lines(x=df5$X, y=df5$Y,visible=F,name='Quadratique',color="#344a59")%>%
+  layout(title = "Projection des groupes sur les différents axes", showlegend = TRUE,updatemenus = updatemenus,
+         xaxis = list(tickvals = c(-1,0,1, 2,3,4,5,6,7)),
+         yaxis = list(tickvals = c(-1,0,1, 2,3,4,5,6,7)),
+         autosize=F,width=770,height=450)
+fig
+```
+
+]
+]
+
+---
+
+class: center, middle
+# Création de présentations `Xaringan`
+
+---
+## `Xaringan`
+
+Le package `Xaringan` est une extension `R Mardown` basé sur la librairie Javascript, `remark.js`, afin de générer des présentation `html` d'un nouveau style.
+
+--
+
+Le nom "xaringan" vient de Sharingan (http://naruto.wikia.com/wiki/Sharingan) de "Naruto" un dojustsu avec deux aptitudes :
+
+- L'œil de la perception ;
+
+- L'œil de l'hypnotisation.
+
+--
+
+L'auteur a choisi ce mot pour qu'il soit difficile à prononcer par la plupart des gens car il ne souhaitait pas que `Xaringan` ne devienne trop populaire. 
+
+--
+
+Ce qui est plutôt raté...
+
+---
+
+## Pourquoi `Xaringan` ?
+
+- Très adaptable ;
+
+- Très customisable (si on s'y connaît en Javascript et en CSS) ;
+
+- Interactif ;
+
+- Facile à prendre en main ;
+
+- Beau, tout simplement.
+
+---
+## Exemple
+
+.panelset[
+.panel[.panel-name[Librairie]
+
+```{r, results='hide',warning=FALSE, message=FALSE, eval=FALSE}
+# install from CRAN
+install.packages('xaringan')
+
+# or GitHub
+devtools::install_github('yihui/xaringan')
+```
+
+
+]
+.panel[.panel-name[Metadata]
+
+
+```{r, results='hide',warning=FALSE,eval=FALSE,message=FALSE,eval=FALSE}
+---
+title: "Presentation Ninja"
+subtitle: "with xaringan"
+author: "Yihui Xie"
+date: "2016/12/12"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: false
+---
+```
+
+
+
+]
+.panel[.panel-name[Pages]
+
+
+```{r, results='hide',warning=FALSE,eval=FALSE,message=FALSE,eval=FALSE}
+---
+
+One slide.
+
+---
+
+Another slide.
+```
+
+
+
+]
+]
+
+---
+
+class: center, middle
+# Conclusion et développement
+
+---
+
+class: center, middle
+
+--
+
+### Customisation du site
+
+--
+
+### Ajout de contenu
+
+--
+
+### Experimentation
+
+--
+
+### Retours d'étudiants
+
+--
+
+### Retours de professeurs
+
+
+

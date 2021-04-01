@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Statistique décisionnelle, Classification</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Lilian Boissé | Jean Clark" />
+    <meta name="date" content="2021-03-29" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/shareon/shareon.min.css" rel="stylesheet" />
+    <script src="libs/shareon/shareon.min.js"></script>
+    <link href="libs/xaringanExtra-shareagain/shareagain.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-shareagain/shareagain.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <script src="libs/peerjs/peerjs.min.js"></script>
+    <script src="libs/tiny.toast/toast.min.js"></script>
+    <link href="libs/xaringanExtra-broadcast/broadcast.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-broadcast/broadcast.js"></script>
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/plotly-binding/plotly.js"></script>
+    <script src="libs/typedarray/typedarray.min.js"></script>
+    <script src="libs/jquery/jquery.min.js"></script>
+    <link href="libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+    <script src="libs/crosstalk/js/crosstalk.min.js"></script>
+    <link href="libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="libs/plotly-main/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="assets/css/my-theme.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/my-fonts.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+class: title-slide,center, top
+
+
+## Présentation du projet Big Data
+
+
+---
+layout: true
+
+background-image: url(images/mecen.png)
+background-position: 97% 5%
+background-size: 6%
+
+---
+## Sommaire
+
+1. Introduction et présentation du site
+
+--
+
+2. Création du site
+
+--
+
+3. Création de graphiques `Plotly`
+
+--
+
+4. Création de `Xaringan`
+
+--
+
+5. Conclusion et développement
+
+
+---
+class: center, middle
+# Introduction et présentation du site
+
+&lt;style type="text/css"&gt;
+.panelset {
+  --panel-tab-font-family: Work Sans;
+  --panel-tab-background-color-active: #fffbe0;
+  --panel-tab-border-color-active: #023d4d;
+}
+
+.panelset .panel-tabs .panel-tab &gt; a {
+	color: #023d4d;
+}
+&lt;/style&gt;
+
+---
+## Objectifs
+
+- Créer une ressource en ligne pour les étudiants du Mécen ;
+
+  - Une ressource intuitive et facile d'accès ;
+  - Des ressources de cours plus interactives ;
+  - Un support pour le cours de Data Mining en M1.
+
+--
+
+- Construire un site internet avec `R` ;
+  - Apprendre les bases du `html` et du `css` ;
+  - Apprendre comment déployer un site à partir de `R`.
+  
+--
+
+- Développer nos connaissances en `R` ;
+  - Graphiques semi-interactifs avec `Plotly` ;
+  - Développement de nos `ggplot` skills ;
+  - Approfondissement des connaissances `tidyverse`.
+
+---
+## Le site
+
+
+- Introduction à la classification ;
+
+- Quelques notions importantes ;
+
+- Construction et qualité d'un modèle ;
+
+- Modèles de classement présentés : LDA, QDA et kNN ;
+
+- [Lien vers le site.](https://big-data-techniques-de-classement.netlify.app/)
+
+---
+
+class: center, middle
+# Création du site
+
+---
+## Pourquoi avoir choisi de créer un site ?
+
+--
+
+- La polyvalence : intégration de graphiques, textes, équations, présentations `Xaringan`...
+
+--
+
+- La souplesse : esthétique, la quantité de contenu...
+
+--
+
+- La facilité d'accès à l'information ;
+
+--
+
+- Plus adapté à du contenu pédagogique.
+
+---
+## Création d'un site `distill`
+
+.panelset[
+.panel[.panel-name[Construction]
+
+
+```r
+library(distill)
+```
+
+- Un fichier `.yml` pour gérer la construction du site ;
+
+- Un fichier `.css` pour gérer l'esthétique ;
+
+- Des fichiers `.Rmd` pour générer le contenu et donc les pages `.html` ;
+  
+  - Les fichiers `.html` sont stockées automatiquement dans un dossier `docs`. 
+
+]
+.panel[.panel-name[Intégration des `Xaringan`]
+
+- Des dossiers contenant les présentations ;
+
+- On appelle les dossiers à l'endroit souhaité dans le site avec :
+
+
+```r
+library(xaringanExtra)
+use_share_again()
+embed_xaringan(url = "slides_homepage/index.html", ratio = "16:9")
+```
+
+
+
+]
+]
+
+---
+
+class: center, middle
+# Création de graphiques `Plotly`
+
+---
+
+## `Plotly` ?
+
+--
+
+- Une librairie graphique qui permet de rendre Les graphiques interactifs ;
+
+  - À la base, `Plotly` est une librairie `Python` qui a été adaptée en `R` ;
+  - Toutes sortes de graphiques peuvent être réalisés ce qui nous offre une certaines flexibilité ;
+  - Les graphiques sont pré-générés et s'intègrent donc parfaitement à un site internet et ne nécessitent pas de serveurs à l'inverse de `R Shiny`.
+
+--
+
+#### Comment construit-on un graphique `Plotly` ?
+
+--
+
+- On crée d'abord les graphiques, presque comme un `ggplot` classique ;
+
+--
+
+- On gère l'interfaçage des graphiques en créant un menu.
+
+---
+
+## Un exemple
+
+.panelset[
+.panel[.panel-name[Les graphiques]
+
+
+
+```r
+library(plotly)
+fig &lt;- plot_ly() %&gt;%
+  add_markers(x=df1$X, y=df1$Y, marker=list(color=bleu_mecen), name = "Groupe 1") %&gt;%
+  add_markers(x=df2$X, y=df2$Y, marker=list(color='pink'), name = "Groupe 2")%&gt;%
+  add_lines(x=df3$X, y=df3$Y,visible=F,name='Point par point',color="#344a57")%&gt;%
+  add_lines(x=df4$X, y=df4$Y,visible=F,name='Linéaire',color="#344a58")%&gt;%
+  add_lines(x=df5$X, y=df5$Y,visible=F,name='Quadratique',color="#344a59")%&gt;%
+  layout(title = "Projection des groupes sur les différents axes", showlegend = TRUE,updatemenus = updatemenus,
+         xaxis = list(tickvals = c(-1,0,1, 2,3,4,5,6,7)),
+           yaxis = list(tickvals = c(-1,0,1, 2,3,4,5,6,7)))
+```
+
+]
+.panel[.panel-name[L'interface]
+
+
+```r
+updatemenus &lt;- list(list(x=1.3,y=0.3,type="buttons",
+    buttons=list(list(label="Sur-apprentissage",method="update",
+        args=list(list(visible=c(T,T,T,F,F)),list(title="Sur-apprentissage"))
+      ),
+      list(label="Sous-apprentissage",method="update",
+        args=list(list(visible=c(T,T,F,T,F)),list(title="Sous-apprentissage"))
+      ),
+      list(label="Bon modèle",method="update",
+        args=list(list(visible=c(T,T,F,F,T)),list(title="Bon modèle"))
+      ),
+      list(label="Tous",method="update",
+        args=list(list(visible=c(T,T,T,T,T)),list(title="Tous les modèles"))))))
+```
+
+
+
+]
+.panel[.panel-name[Le résultat]
+
+<div id="htmlwidget-6cdc777d883dd1b02370" style="width:504px;height:504px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6cdc777d883dd1b02370">{"x":{"visdat":{"25781c71082":["function () ","plotlyVisDat"]},"cur_data":"25781c71082","attrs":{"25781c71082":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":[1,1.2,2,2.1,2.15,2.16,2.3,2.5,3,3.1,4,4.5,5.2,5.4,5.42],"y":[5,1,2.5,4,6,4.5,4.2,5.3,4.9,4.2,5,3.2,5.5,5.9,5],"type":"scatter","mode":"markers","marker":{"color":"#238694"},"name":"Groupe 1","inherit":true},"25781c71082.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":[2.5,2.55,2.56,2.7,3,3.3,4,4.1,5.1,5.15,5.5,3.5,4.1,5],"y":[2.6,2.7,3,4,3.2,3.5,3.7,3.1,4.1,4.15,3.5,2.5,1.5,2],"type":"scatter","mode":"markers","marker":{"color":"pink"},"name":"Groupe 2","inherit":true},"25781c71082.2":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":[1.5,2.5,2.55,2.56,2.7,3,3.3,4,4.5,5.1,5.15,5.5,5.7],"y":[1,2.9,3.1,3.2,4.3,3.4,3.7,3.9,3,4.3,4.4,3.7,3.7],"type":"scatter","mode":"lines","visible":false,"name":"Point par point","color":"#344a57","inherit":true},"25781c71082.3":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":[1,5.5],"y":[3,5],"type":"scatter","mode":"lines","visible":false,"name":"Linéaire","color":"#344a58","inherit":true},"25781c71082.4":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":[2.05,2.15,2.25,2.35,2.45,2.55,2.65,2.75,2.85,2.95,3.05,3.15,3.25,3.35,3.45,3.55,3.65,3.75,3.85,3.95,4.05,4.15,4.25,4.35,4.45,4.55,4.65,4.75,4.85,4.95,5.05,5.15,5.25,5.35,5.45,5.55,5.65],"y":[0.799999999999996,1.94285714285714,2.57777777777778,2.98181818181818,3.26153846153846,3.46666666666667,3.62352941176471,3.74736842105263,3.84761904761905,3.9304347826087,4,4.05925925925926,4.11034482758621,4.15483870967742,4.19393939393939,4.22857142857143,4.25945945945946,4.28717948717949,4.31219512195122,4.33488372093023,4.35555555555556,4.37446808510638,4.39183673469388,4.4078431372549,4.42264150943396,4.43636363636364,4.44912280701754,4.46101694915254,4.47213114754098,4.48253968253968,4.49230769230769,4.50149253731343,4.51014492753623,4.51830985915493,4.52602739726027,4.53333333333333,4.54025974025974],"type":"scatter","mode":"lines","visible":false,"name":"Quadratique","color":"#344a59","inherit":true}},"layout":{"width":770,"height":450,"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Projection des groupes sur les différents axes","showlegend":true,"updatemenus":[{"x":1.3,"y":0.3,"type":"buttons","buttons":[{"label":"Sur-apprentissage","method":"update","args":[{"visible":[true,true,true,false,false]},{"title":"Sur-apprentissage"}]},{"label":"Sous-apprentissage","method":"update","args":[{"visible":[true,true,false,true,false]},{"title":"Sous-apprentissage"}]},{"label":"Bon modèle","method":"update","args":[{"visible":[true,true,false,false,true]},{"title":"Bon modèle"}]},{"label":"Tous","method":"update","args":[{"visible":[true,true,true,true,true]},{"title":"Tous les modèles"}]}]}],"xaxis":{"domain":[0,1],"automargin":true,"tickvals":[-1,0,1,2,3,4,5,6,7],"title":[]},"yaxis":{"domain":[0,1],"automargin":true,"tickvals":[-1,0,1,2,3,4,5,6,7],"title":[]},"autosize":false,"hovermode":"closest"},"source":"A","config":{"showSendToCloud":false},"data":[{"x":[1,1.2,2,2.1,2.15,2.16,2.3,2.5,3,3.1,4,4.5,5.2,5.4,5.42],"y":[5,1,2.5,4,6,4.5,4.2,5.3,4.9,4.2,5,3.2,5.5,5.9,5],"type":"scatter","mode":"markers","marker":{"color":"#238694","line":{"color":"rgba(31,119,180,1)"}},"name":"Groupe 1","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[2.5,2.55,2.56,2.7,3,3.3,4,4.1,5.1,5.15,5.5,3.5,4.1,5],"y":[2.6,2.7,3,4,3.2,3.5,3.7,3.1,4.1,4.15,3.5,2.5,1.5,2],"type":"scatter","mode":"markers","marker":{"color":"pink","line":{"color":"rgba(255,127,14,1)"}},"name":"Groupe 2","error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1.5,2.5,2.55,2.56,2.7,3,3.3,4,4.5,5.1,5.15,5.5,5.7],"y":[1,2.9,3.1,3.2,4.3,3.4,3.7,3.9,3,4.3,4.4,3.7,3.7],"type":"scatter","mode":"lines","visible":false,"name":"Point par point","marker":{"color":"rgba(102,194,165,1)","line":{"color":"rgba(102,194,165,1)"}},"textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,5.5],"y":[3,5],"type":"scatter","mode":"lines","visible":false,"name":"Linéaire","marker":{"color":"rgba(252,141,98,1)","line":{"color":"rgba(252,141,98,1)"}},"textfont":{"color":"rgba(252,141,98,1)"},"error_y":{"color":"rgba(252,141,98,1)"},"error_x":{"color":"rgba(252,141,98,1)"},"line":{"color":"rgba(252,141,98,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[2.05,2.15,2.25,2.35,2.45,2.55,2.65,2.75,2.85,2.95,3.05,3.15,3.25,3.35,3.45,3.55,3.65,3.75,3.85,3.95,4.05,4.15,4.25,4.35,4.45,4.55,4.65,4.75,4.85,4.95,5.05,5.15,5.25,5.35,5.45,5.55,5.65],"y":[0.799999999999996,1.94285714285714,2.57777777777778,2.98181818181818,3.26153846153846,3.46666666666667,3.62352941176471,3.74736842105263,3.84761904761905,3.9304347826087,4,4.05925925925926,4.11034482758621,4.15483870967742,4.19393939393939,4.22857142857143,4.25945945945946,4.28717948717949,4.31219512195122,4.33488372093023,4.35555555555556,4.37446808510638,4.39183673469388,4.4078431372549,4.42264150943396,4.43636363636364,4.44912280701754,4.46101694915254,4.47213114754098,4.48253968253968,4.49230769230769,4.50149253731343,4.51014492753623,4.51830985915493,4.52602739726027,4.53333333333333,4.54025974025974],"type":"scatter","mode":"lines","visible":false,"name":"Quadratique","marker":{"color":"rgba(141,160,203,1)","line":{"color":"rgba(141,160,203,1)"}},"textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+
+]
+]
+
+---
+
+class: center, middle
+# Création de présentations `Xaringan`
+
+---
+## `Xaringan`
+
+Le package `Xaringan` est une extension `R Mardown` basé sur la librairie Javascript, `remark.js`, afin de générer des présentation `html` d'un nouveau style.
+
+--
+
+Le nom "xaringan" vient de Sharingan (http://naruto.wikia.com/wiki/Sharingan) de "Naruto" un dojustsu avec deux aptitudes :
+
+- L'œil de la perception ;
+
+- L'œil de l'hypnotisation.
+
+--
+
+L'auteur a choisi ce mot pour qu'il soit difficile à prononcer par la plupart des gens car il ne souhaitait pas que `Xaringan` ne devienne trop populaire. 
+
+--
+
+Ce qui est plutôt raté...
+
+---
+
+## Pourquoi `Xaringan` ?
+
+- Très adaptable ;
+
+- Très customisable (si on s'y connaît en Javascript et en CSS) ;
+
+- Interactif ;
+
+- Facile à prendre en main ;
+
+- Beau, tout simplement.
+
+---
+## Exemple
+
+.panelset[
+.panel[.panel-name[Librairie]
+
+
+```r
+# install from CRAN
+install.packages('xaringan')
+
+# or GitHub
+devtools::install_github('yihui/xaringan')
+```
+
+
+]
+.panel[.panel-name[Metadata]
+
+
+
+```r
+---
+title: "Presentation Ninja"
+subtitle: "with xaringan"
+author: "Yihui Xie"
+date: "2016/12/12"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      countIncrementalSlides: false
+---
+```
+
+
+
+]
+.panel[.panel-name[Pages]
+
+
+
+```r
+---
+
+One slide.
+
+---
+
+Another slide.
+```
+
+
+
+]
+]
+
+---
+
+class: center, middle
+# Conclusion et développement
+
+---
+
+class: center, middle
+
+--
+
+### Customisation du site
+
+--
+
+### Ajout de contenu
+
+--
+
+### Experimentation
+
+--
+
+### Retours d'étudiants
+
+--
+
+### Retours de professeurs
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "<div class=\"progress-bar-container\">\n  <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">\n  </div>\n</div>\n",
+"highlightStyle": "solarized-light",
+"highlightLanguage": ["r", "css", "yaml"],
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

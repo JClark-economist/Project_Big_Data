@@ -12,10 +12,12 @@ navbar:
     image: slides_homepage/images/mecen.png
     href: http://mecen-univ-tours.fr/
   right:
-    - text: home
+    - text: accueil
       href: index.html
     - text: cours
       href: models.html
+    - text: a propos
+      href: Apropos.html
     - icon: fab fa-github
       href: https://github.com/JClark-economist
 output: 

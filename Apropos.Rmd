@@ -1,0 +1,74 @@
+---
+title: "Qui sommes nous ?"
+site: distill::distill_website
+---
+
+Ce site a été crée par deux étudiants du Master 2 Mécen dans le cadre du cours "Big Data" dispensé par [Mme Julie Scholler](https://juliescholler.gitlab.io/) et Mr Franck Piller.
+
+<br>
+<div style='text-align: center;  color: #105C90'>
+<span itemprop="name" style="font-variant: small-caps ; color: #105C90; font-size: 150%">Lilian Boissé</span>
+<div>
+<br>
+<div style='text-align: center;  color: #105C90'>
+<a style='color: #105C90' href="mailto:i37lilian@yahoo.com" title="Email me" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">Email me</span>
+</a>
+<a style='color: #105C90'href="https://github.com/LBoisse/" title="GitHub" class = 'social-icon'>
+  <span class="fa-stack fa-lg" aria-hidden="true">
+    <i class="fa fa-circle fa-stack-2x"></i>
+    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+  </span>
+  <span class="sr-only">GitHub</span>
+</a>
+<a style='color: #105C90' href="https://www.linkedin.com/in/lilian-boisse-data-analyst/" title="LinkedIn" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">LinkedIn</span>
+</a>
+</a>
+</div>
+
+
+<br>
+<div style='text-align: center;  color: #105C90'>
+<span itemprop="name" style="text-align: center;font-variant: small-caps;  color: #105C90; font-size: 150%">Jean Clark </span>
+<div>
+<br>
+<div style='text-align: center;  color: #105C90'>
+<a style='color: #105C90' href="mailto:jean15clark@gmail.com" title="Email me" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">Email me</span>
+</a>
+<a style='color: #105C90'href="https://github.com/JClark-economist" title="GitHub" class = 'social-icon'>
+  <span class="fa-stack fa-lg" aria-hidden="true">
+    <i class="fa fa-circle fa-stack-2x"></i>
+    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+  </span>
+  <span class="sr-only">GitHub</span>
+</a>
+<a style='color: #105C90' href="https://www.linkedin.com/in/jean-clark-data-analyst/" title="LinkedIn" class = 'social-icon'><span class="fa-stack fa-lg" aria-hidden="true">
+  <i class="fa fa-circle fa-stack-2x"></i>
+  <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+</span>
+<span class="sr-only">LinkedIn</span>
+</a>
+</a>
+</div>
+
+## Pourquoi avoir réalisé un site ?
+
+```{r share-again, echo=FALSE}
+xaringanExtra::use_share_again()
+```
+
+```{r embed-xaringan, echo=FALSE, fig.cap="[Slides](slides/index.html)"}
+xaringanExtra::embed_xaringan(url = "Presentation_Big_Data/index.html", ratio = "16:9")
+```
+\
